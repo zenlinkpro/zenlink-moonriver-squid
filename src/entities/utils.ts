@@ -10,7 +10,6 @@ import {
   ZenlinkInfo
 } from "../model"
 
-
 export async function getTransaction(ctx: CommonHandlerContext<Store>, id: string) {
   const item = await ctx.store.get(Transaction, id)
 

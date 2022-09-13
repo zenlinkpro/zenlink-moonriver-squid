@@ -22,10 +22,10 @@ import {
 const database = new TypeormDatabase()
 const processor = new SubstrateBatchProcessor()
   .setBatchSize(100)
-  .setBlockRange({ from: 1424626 })
+  .setBlockRange({ from: 2341124 })
   .setDataSource({
     chain: CHAIN_NODE,
-    archive: lookupArchive('astar', { release: "FireSquid" })
+    archive: lookupArchive('moonriver', { release: "FireSquid" })
   })
   .addEvmLog(FACTORY_ADDRESS, {
     filter: [factory.events['PairCreated(address,address,address,uint256)'].topic],
@@ -54,7 +54,7 @@ const processor = new SubstrateBatchProcessor()
         StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic
       ],
     ],
-    range: { from: 1465712 }
+    range: { from: 2341125 }
   })
 
 processor.run(database, async (ctx) => {

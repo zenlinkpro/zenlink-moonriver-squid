@@ -231,8 +231,8 @@ async function createLiquiditySnapShot(
     block: ctx.block.height,
     user: position.user,
     pair: position.pair,
-    token0PriceUSD: BigDecimal(token0.derivedETH).times(BigDecimal(bundle.ethPrice)).toString(),
-    token1PriceUSD: BigDecimal(token1.derivedETH).times(BigDecimal(bundle.ethPrice)).toString(),
+    token0PriceUSD: BigDecimal(token0.derivedETH).times(BigDecimal(bundle.ethPrice)).toFixed(6),
+    token1PriceUSD: BigDecimal(token1.derivedETH).times(BigDecimal(bundle.ethPrice)).toFixed(6),
     reserve0: pair.reserve0,
     reserve1: pair.reserve1,
     reserveUSD: pair.reserveUSD,
@@ -310,12 +310,12 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
     .times(token0.derivedETH)
     .plus(BigDecimal(pair.reserve1).times(token1.derivedETH))
     .toString()
-  pair.reserveUSD = BigDecimal(pair.reserveETH).times(bundle.ethPrice).toString()
+  pair.reserveUSD = BigDecimal(pair.reserveETH).times(bundle.ethPrice).toFixed(6)
   await ctx.store.save(pair)
 
   // use tracked amounts globally
   factory.totalLiquidityETH = BigDecimal(factory.totalLiquidityETH).plus(trackedLiquidityETH).toString()
-  factory.totalLiquidityUSD = BigDecimal(factory.totalLiquidityETH).times(bundle.ethPrice).toString()
+  factory.totalLiquidityUSD = BigDecimal(factory.totalLiquidityETH).times(bundle.ethPrice).toFixed(6)
   await ctx.store.save(factory)
 
   // now correctly set liquidity amounts for each token
@@ -395,28 +395,28 @@ export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void
     : trackedAmountUSD.div(bundle.ethPrice)
   // update token0 global volume and token liquidity stats
   token0.tradeVolume = BigDecimal(token0.tradeVolume).plus(amount0Total).toString()
-  token0.tradeVolumeUSD = BigDecimal(token0.tradeVolumeUSD).plus(trackedAmountUSD).toString()
-  token0.untrackedVolumeUSD = BigDecimal(token0.untrackedVolumeUSD).plus(derivedAmountUSD).toString()
+  token0.tradeVolumeUSD = BigDecimal(token0.tradeVolumeUSD).plus(trackedAmountUSD).toFixed(6)
+  token0.untrackedVolumeUSD = BigDecimal(token0.untrackedVolumeUSD).plus(derivedAmountUSD).toFixed(6)
   token0.txCount += 1
   // update token1 global volume and token liquidity stats
   token1.tradeVolume = BigDecimal(token1.tradeVolume).plus(amount1Total).toString()
-  token1.tradeVolumeUSD = BigDecimal(token1.tradeVolumeUSD).plus(trackedAmountUSD).toString()
-  token1.untrackedVolumeUSD = BigDecimal(token1.untrackedVolumeUSD).plus(derivedAmountUSD).toString()
+  token1.tradeVolumeUSD = BigDecimal(token1.tradeVolumeUSD).plus(trackedAmountUSD).toFixed(6)
+  token1.untrackedVolumeUSD = BigDecimal(token1.untrackedVolumeUSD).plus(derivedAmountUSD).toFixed(6)
   token1.txCount += 1
   await ctx.store.save([token0, token1])
 
   // update pair volume data, use tracked amount if we have it as its probably more accurate
-  pair.volumeUSD = BigDecimal(pair.volumeUSD).plus(trackedAmountUSD).toString()
-  pair.volumeToken0 = BigDecimal(pair.volumeToken0).plus(amount0Total).toString()
-  pair.volumeToken1 = BigDecimal(pair.volumeToken1).plus(amount1Total).toString()
-  pair.untrackedVolumeUSD = BigDecimal(pair.untrackedVolumeUSD).plus(derivedAmountUSD).toString()
+  pair.volumeUSD = BigDecimal(pair.volumeUSD).plus(trackedAmountUSD).toFixed(6)
+  pair.volumeToken0 = BigDecimal(pair.volumeToken0).plus(amount0Total).toFixed(6)
+  pair.volumeToken1 = BigDecimal(pair.volumeToken1).plus(amount1Total).toFixed(6)
+  pair.untrackedVolumeUSD = BigDecimal(pair.untrackedVolumeUSD).plus(derivedAmountUSD).toFixed(6)
   pair.txCount += 1
   await ctx.store.save(pair)
 
   // update global values, only used tracked amounts for volume
-  factory.totalVolumeUSD = BigDecimal(factory.totalVolumeUSD).plus(trackedAmountUSD).toString()
+  factory.totalVolumeUSD = BigDecimal(factory.totalVolumeUSD).plus(trackedAmountUSD).toFixed(6)
   factory.totalVolumeETH = BigDecimal(factory.totalVolumeETH).plus(trackedAmountETH).toString()
-  factory.untrackedVolumeUSD = BigDecimal(factory.untrackedVolumeUSD).plus(derivedAmountUSD).toString()
+  factory.untrackedVolumeUSD = BigDecimal(factory.untrackedVolumeUSD).plus(derivedAmountUSD).toFixed(6)
   factory.txCount += 1
   await ctx.store.save(factory)
 
@@ -465,20 +465,20 @@ export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void
   await updateZenlinkInfo(ctx)
 
   // swap specific updating
-  factoryDayData.dailyVolumeUSD = BigDecimal(factoryDayData.dailyVolumeUSD).plus(trackedAmountUSD).toString()
+  factoryDayData.dailyVolumeUSD = BigDecimal(factoryDayData.dailyVolumeUSD).plus(trackedAmountUSD).toFixed(6)
   factoryDayData.dailyVolumeETH = BigDecimal(factoryDayData.dailyVolumeETH).plus(trackedAmountETH).toString()
-  factoryDayData.dailyVolumeUntracked = BigDecimal(factoryDayData.dailyVolumeUntracked).plus(derivedAmountUSD).toString()
+  factoryDayData.dailyVolumeUntracked = BigDecimal(factoryDayData.dailyVolumeUntracked).plus(derivedAmountUSD).toFixed(6)
   await ctx.store.save(factoryDayData)
 
   // swap specific updating for pair
-  pairDayData.dailyVolumeToken0 = BigDecimal(pairDayData.dailyVolumeToken0).plus(amount0Total).toString()
+  pairDayData.dailyVolumeToken0 = BigDecimal(pairDayData.dailyVolumeToken0).plus(amount0Total).toFixed(6)
   pairDayData.dailyVolumeToken1 = BigDecimal(pairDayData.dailyVolumeToken1).plus(amount1Total).toString()
-  pairDayData.dailyVolumeUSD = BigDecimal(pairDayData.dailyVolumeUSD).plus(trackedAmountUSD).toString()
+  pairDayData.dailyVolumeUSD = BigDecimal(pairDayData.dailyVolumeUSD).plus(trackedAmountUSD).toFixed(6)
   await ctx.store.save(pairDayData)
 
-  pairHourData.hourlyVolumeToken0 = BigDecimal(pairHourData.hourlyVolumeToken0).plus(amount0Total).toString()
+  pairHourData.hourlyVolumeToken0 = BigDecimal(pairHourData.hourlyVolumeToken0).plus(amount0Total).toFixed(6)
   pairHourData.hourlyVolumeToken1 = BigDecimal(pairHourData.hourlyVolumeToken1).plus(amount1Total).toString()
-  pairHourData.hourlyVolumeUSD = BigDecimal(pairHourData.hourlyVolumeUSD).plus(trackedAmountUSD).toString()
+  pairHourData.hourlyVolumeUSD = BigDecimal(pairHourData.hourlyVolumeUSD).plus(trackedAmountUSD).toFixed(6)
   await ctx.store.save(pairHourData)
 
   // swap specific updating for token0
@@ -488,7 +488,7 @@ export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void
     .toString()
   token0DayData.dailyVolumeUSD = BigDecimal(token0DayData.dailyVolumeUSD)
     .plus(amount0Total.times(token0.derivedETH).times(bundle.ethPrice))
-    .toString()
+    .toFixed(6)
   await ctx.store.save(token0DayData)
 
   // swap specific updating
@@ -500,7 +500,7 @@ export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void
     .toString()
   token1DayData.dailyVolumeUSD = BigDecimal(token1DayData.dailyVolumeUSD).plus(
     amount1Total.times(token1.derivedETH).times(bundle.ethPrice)
-  ).toString()
+  ).toFixed(6)
   await ctx.store.save(token1DayData)
 }
 
@@ -543,7 +543,7 @@ export async function handleMint(ctx: EvmLogHandlerContext<Store>): Promise<void
   mint.amount0 = token0Amount.toString()
   mint.amount1 = token1Amount.toString()
   mint.logIndex = ctx.event.indexInBlock
-  mint.amountUSD = amountTotalUSD.toString()
+  mint.amountUSD = amountTotalUSD.toFixed(6)
   await ctx.store.save(mint)
 
   const user = (await ctx.store.get(User, mint.to))!
@@ -612,7 +612,7 @@ export async function handleBurn(ctx: EvmLogHandlerContext<Store>): Promise<void
   burn.amount0 = token0Amount.toString()
   burn.amount1 = token1Amount.toString()
   burn.logIndex = ctx.event.indexInBlock
-  burn.amountUSD = amountTotalUSD.toString()
+  burn.amountUSD = amountTotalUSD.toFixed(6)
   await ctx.store.save(burn)
 
   // update the LP position

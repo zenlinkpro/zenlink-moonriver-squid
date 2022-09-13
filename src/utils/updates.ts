@@ -128,10 +128,10 @@ export async function updateTokenDayData(
       totalLiquidityUSD: ZERO_BD.toString()
     })
   }
-  tokenDayData.priceUSD = BigDecimal(token.derivedETH).times(bundle.ethPrice).toString()
+  tokenDayData.priceUSD = BigDecimal(token.derivedETH).times(bundle.ethPrice).toFixed(6)
   tokenDayData.totalLiquidityToken = token.totalLiquidity
   tokenDayData.totalLiquidityETH = BigDecimal(token.totalLiquidity).times(token.derivedETH).toString()
-  tokenDayData.totalLiquidityUSD = BigDecimal(tokenDayData.totalLiquidityETH).times(bundle.ethPrice).toString()
+  tokenDayData.totalLiquidityUSD = BigDecimal(tokenDayData.totalLiquidityETH).times(bundle.ethPrice).toFixed(6)
   tokenDayData.dailyTxns += 1
   await ctx.store.save(tokenDayData)
   return tokenDayData
@@ -153,7 +153,7 @@ export async function updateStableSwapTvl(
     const balanceDecimal: BigDecimal = BigDecimal(balance.toString()).div(10 ** token.decimals)
     tvl = tvl.plus(balanceDecimal)
   }
-  stableSwap.tvlUSD = tvl.mul(tokenUSDPrice).toString()
+  stableSwap.tvlUSD = tvl.mul(tokenUSDPrice).toFixed(6)
 
   await ctx.store.save(stableSwap)
   return stableSwap
@@ -225,10 +225,10 @@ export async function updateZenlinkDayInfo(ctx: EvmLogHandlerContext<Store>): Pr
   }
   zenlinkDayInfo.tvlUSD = BigDecimal(factoryDayData.totalLiquidityUSD)
     .add(stableDayData.tvlUSD)
-    .toString()
+    .toFixed(6)
   zenlinkDayInfo.dailyVolumeUSD = BigDecimal(factoryDayData.dailyVolumeUSD)
     .add(stableDayData.dailyVolumeUSD)
-    .toString()
+    .toFixed(6)
   await ctx.store.save(zenlinkDayInfo)
   return zenlinkDayInfo
 }
@@ -242,8 +242,8 @@ export async function updateStableSwapInfo(ctx: EvmLogHandlerContext<Store>): Pr
     tvlUSD = tvlUSD.add(swap.tvlUSD)
     volumeUSD = volumeUSD.add(swap.volumeUSD)
   })
-  stableSwapInfo.totalTvlUSD = tvlUSD.toString()
-  stableSwapInfo.totalVolumeUSD = volumeUSD.toString()
+  stableSwapInfo.totalTvlUSD = tvlUSD.toFixed(6)
+  stableSwapInfo.totalVolumeUSD = volumeUSD.toFixed(6)
   stableSwapInfo.txCount += 1
 
   await ctx.store.save(stableSwapInfo)
@@ -256,10 +256,10 @@ export async function updateZenlinkInfo(ctx: EvmLogHandlerContext<Store>): Promi
   const { factory, stableSwapInfo } = zenlinkInfo
   zenlinkInfo.totalTvlUSD = BigDecimal(factory.totalLiquidityUSD)
     .add(stableSwapInfo.totalTvlUSD)
-    .toString()
+    .toFixed(6)
   zenlinkInfo.totalVolumeUSD = BigDecimal(factory.totalVolumeUSD)
     .add(stableSwapInfo.totalVolumeUSD)
-    .toString()
+    .toFixed(6)
   zenlinkInfo.txCount = factory.txCount + stableSwapInfo.txCount
   zenlinkInfo.updatedDate = new Date(ctx.block.timestamp)
   await ctx.store.save(zenlinkInfo)

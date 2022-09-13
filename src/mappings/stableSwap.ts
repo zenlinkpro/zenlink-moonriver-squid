@@ -240,7 +240,7 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
     const balanceDecimal: BigDecimal = BigDecimal(balance.toString()).div(10 ** token.decimals)
     tvl = tvl.plus(balanceDecimal)
   }
-  stableSwap.tvlUSD = tvl.mul(tokenUSDPrice).toString()
+  stableSwap.tvlUSD = tvl.mul(tokenUSDPrice).toFixed(6)
   await ctx.store.save(stableSwap)
 
   const stableSwapDayData = await updateStableSwapDayData(ctx, stableSwap)
@@ -274,9 +274,9 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
     const buyVolume = BigDecimal(event.tokensBought.toString()).div(10 ** boughtToken.decimals)
     const volume = sellVolume.plus(buyVolume).div(2).mul(tokenUSDPrice)
 
-    stableSwap.volumeUSD = BigDecimal(stableSwap.volumeUSD).add(volume).toString()
-    stableSwapDayData.dailyVolumeUSD = BigDecimal(stableSwapDayData.dailyVolumeUSD).add(volume).toString()
-    stableDayData.dailyVolumeUSD = BigDecimal(stableDayData.dailyVolumeUSD).add(volume).toString()
+    stableSwap.volumeUSD = BigDecimal(stableSwap.volumeUSD).add(volume).toFixed(6)
+    stableSwapDayData.dailyVolumeUSD = BigDecimal(stableSwapDayData.dailyVolumeUSD).add(volume).toFixed(6)
+    stableDayData.dailyVolumeUSD = BigDecimal(stableDayData.dailyVolumeUSD).add(volume).toFixed(6)
 
     await ctx.store.save(stableSwap)
     await ctx.store.save(stableSwapDayData)

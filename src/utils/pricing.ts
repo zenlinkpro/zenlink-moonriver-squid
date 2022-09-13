@@ -7,14 +7,14 @@ import { getPair } from "../entities/pair"
 import { getOrCreateToken } from "../entities/token"
 import { Pair, StableSwap } from "../model"
 
-export const WNATIVE = '0xaeaaf0e2c81af264101b9129c00f4440ccf0f720'.toLowerCase()
-export const USDC = '0x6a2d262d56735dba19dd70682b39f6be9a931d98'.toLowerCase()
-export const WNATIVE_USDC = '0x77fe816550d8fdd0fcb0cdea66541f3d76918681'.toLowerCase()
+export const WNATIVE = '0x98878b06940ae243284ca214f92bb71a2b032b8a'.toLowerCase()
+export const USDC = '0xe3f5a90f9cb311505cd691a46596599aa1a0ad7d'.toLowerCase()
+export const WNATIVE_USDC = '0x3933B0214b3B117fB52646343076D229817A4e4b'.toLowerCase()
 
 export const WHITELIST: string[] = [
-  '0xaeaaf0e2c81af264101b9129c00f4440ccf0f720'.toLowerCase(), // wnative
-  '0x6a2d262d56735dba19dd70682b39f6be9a931d98'.toLowerCase(), // usdc
-  '0x998082c488e548820f970df5173bd2061ce90635'.toLowerCase(), // zlk
+  '0x98878b06940ae243284ca214f92bb71a2b032b8a'.toLowerCase(), // wnative
+  '0xe3f5a90f9cb311505cd691a46596599aa1a0ad7d'.toLowerCase(), // usdc
+  '0x0f47ba9d9bde3442b42175e51d6a367928a1173b'.toLowerCase(), // zlk
 ]
 
 // minimum liquidity required to count towards tracked volume for pairs with small # of Lps

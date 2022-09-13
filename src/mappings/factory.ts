@@ -11,7 +11,6 @@ export async function handleNewPair(ctx: EvmLogHandlerContext<Store>) {
   const data = factoryAbi.events['PairCreated(address,address,address,uint256)']
     .decode(ctx.event.args)
 
-
   // load factory (create if first exchange)
   let factory = await ctx.store.get(Factory, contractAddress)
   if (!factory) {
