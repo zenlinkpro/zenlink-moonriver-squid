@@ -6,10 +6,11 @@ import { ZERO_BD } from "../consts";
 import { getOrCreateToken } from "../entities/token";
 
 export async function handleNewPair(ctx: EvmLogHandlerContext<Store>) {
-  const contractAddress = ctx.event.args.address.toLowerCase()
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address.toLowerCase()
 
   const data = factoryAbi.events['PairCreated(address,address,address,uint256)']
-    .decode(ctx.event.args)
+    .decode(evmLogArgs)
 
   // load factory (create if first exchange)
   let factory = await ctx.store.get(Factory, contractAddress)

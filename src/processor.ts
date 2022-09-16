@@ -92,13 +92,14 @@ async function isKnownPairContracts(store: Store, address: string) {
 }
 
 async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
   switch (contractAddress) {
     case FACTORY_ADDRESS:
       await handleNewPair(ctx)
       break
     case FOUR_POOL:
-      switch (ctx.event.args.topics[0]) {
+      switch (evmLogArgs.topics[0]) {
         case StableSwapContract.events['NewFee(uint256,uint256)'].topic:
           await handleStableSwapNewFee(ctx)
           break
@@ -129,7 +130,7 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
       break
     default:
       if (await isKnownPairContracts(ctx.store, contractAddress)) {
-        switch (ctx.event.args.topics[0]) {
+        switch (evmLogArgs.topics[0]) {
           case pair.events['Transfer(address,address,uint256)'].topic:
             await handleTransfer(ctx)
             break

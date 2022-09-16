@@ -38,9 +38,10 @@ async function isCompleteMint(ctx: CommonHandlerContext<Store>, mintId: string):
 }
 
 export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
 
-  const data = transferEventAbi.decode(ctx.event.args)
+  const data = transferEventAbi.decode(evmLogArgs)
   // ignore initial transfers for first adds
   if (data.to === ADDRESS_ZERO && data.value.toBigInt() === 1000n) {
     return
@@ -243,9 +244,10 @@ async function createLiquiditySnapShot(
 }
 
 export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
 
-  const data = syncEventAbi.decode(ctx.event.args)
+  const data = syncEventAbi.decode(evmLogArgs)
   const bundle = await getBundle(ctx)
   const factory = await getFactory(ctx)
   const pair = await getPair(ctx, contractAddress)
@@ -325,9 +327,10 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
 }
 
 export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
 
-  const data = SwapAbi.decode(ctx.event.args)
+  const data = SwapAbi.decode(evmLogArgs)
   const bundle = await getBundle(ctx)
   const factory = await getFactory(ctx)
 
@@ -510,9 +513,10 @@ export async function handleMint(ctx: EvmLogHandlerContext<Store>): Promise<void
   if (!transaction) return
   const { mints } = transaction
   const mint = (await ctx.store.get(Mint, mints[mints.length - 1]))!
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
 
-  const data = MintAbi.decode(ctx.event.args)
+  const data = MintAbi.decode(evmLogArgs)
   const factory = await getFactory(ctx)
   const pair = await getPair(ctx, contractAddress)
   if (!pair) return
@@ -564,9 +568,10 @@ export async function handleBurn(ctx: EvmLogHandlerContext<Store>): Promise<void
   if (!transaction) return
   const { burns } = transaction
   const burn = (await ctx.store.get(Burn, burns[burns.length - 1]))!
-  const contractAddress = ctx.event.args.address
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const contractAddress = evmLogArgs.address
 
-  const data = BurnAbi.decode(ctx.event.args)
+  const data = BurnAbi.decode(evmLogArgs)
 
   const factory = await getFactory(ctx)
 
