@@ -2,6 +2,7 @@ import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, M
 import * as marshal from "./marshal"
 import {Token} from "./token.model"
 import {PairHourData} from "./pairHourData.model"
+import {PairDayData} from "./pairDayData.model"
 import {LiquidityPosition} from "./liquidityPosition.model"
 import {LiquidityPositionSnapshot} from "./liquidityPositionSnapshot.model"
 import {Mint} from "./mint.model"
@@ -111,6 +112,9 @@ export class Pair {
 
   @OneToMany_(() => PairHourData, e => e.pair)
   pairHourData!: PairHourData[]
+
+  @OneToMany_(() => PairDayData, e => e.pair)
+  pairDayData!: PairDayData[]
 
   @OneToMany_(() => LiquidityPosition, e => e.pair)
   liquidityPositions!: LiquidityPosition[]

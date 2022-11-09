@@ -1,5 +1,5 @@
-module.exports = class Data1663037022439 {
-  name = 'Data1663037022439'
+module.exports = class Data1667977333044 {
+  name = 'Data1667977333044'
 
   async up(db) {
     await db.query(`CREATE TABLE "factory" ("id" character varying NOT NULL, "pair_count" integer NOT NULL, "total_volume_usd" text NOT NULL, "total_volume_eth" text NOT NULL, "untracked_volume_usd" text NOT NULL, "total_liquidity_usd" text NOT NULL, "total_liquidity_eth" text NOT NULL, "tx_count" integer NOT NULL, CONSTRAINT "PK_1372e5a7d114a3fa80736ba66bb" PRIMARY KEY ("id"))`)
@@ -17,9 +17,6 @@ module.exports = class Data1663037022439 {
     await db.query(`CREATE INDEX "IDX_0795adc3723792868094ec76c0" ON "zenlink_info" ("stable_swap_info_id") `)
     await db.query(`CREATE TABLE "token_day_data" ("id" character varying NOT NULL, "date" TIMESTAMP WITH TIME ZONE NOT NULL, "daily_volume_token" text NOT NULL, "daily_volume_eth" text NOT NULL, "daily_volume_usd" text NOT NULL, "daily_txns" integer NOT NULL, "total_liquidity_token" text NOT NULL, "total_liquidity_eth" text NOT NULL, "total_liquidity_usd" text NOT NULL, "price_usd" text NOT NULL, "token_id" character varying, CONSTRAINT "PK_73fc06337215e86196b36822116" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_b8950a8bc7b60231137573740e" ON "token_day_data" ("token_id") `)
-    await db.query(`CREATE TABLE "pair_day_data" ("id" character varying NOT NULL, "date" TIMESTAMP WITH TIME ZONE NOT NULL, "pair_address" text NOT NULL, "reserve0" text NOT NULL, "reserve1" text NOT NULL, "total_supply" text NOT NULL, "reserve_usd" text NOT NULL, "daily_volume_token0" text NOT NULL, "daily_volume_token1" text NOT NULL, "daily_volume_usd" text NOT NULL, "daily_txns" integer NOT NULL, "token0_id" character varying, "token1_id" character varying, CONSTRAINT "PK_ac35ed26ab0c71d491a62e2881a" PRIMARY KEY ("id"))`)
-    await db.query(`CREATE INDEX "IDX_88f6e19c40b47053e6e197db1c" ON "pair_day_data" ("token0_id") `)
-    await db.query(`CREATE INDEX "IDX_ce435d6fc7c373d58e7aab156d" ON "pair_day_data" ("token1_id") `)
     await db.query(`CREATE TABLE "pair_hour_data" ("id" character varying NOT NULL, "hour_start_unix" numeric NOT NULL, "reserve0" text NOT NULL, "reserve1" text NOT NULL, "total_supply" text NOT NULL, "reserve_usd" text NOT NULL, "hourly_volume_token0" text NOT NULL, "hourly_volume_token1" text NOT NULL, "hourly_volume_usd" text NOT NULL, "hourly_txns" integer NOT NULL, "pair_id" character varying, CONSTRAINT "PK_ffc544bb3e72cfd3e48a8b01452" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_cf50c55389e428096a68598ee3" ON "pair_hour_data" ("pair_id") `)
     await db.query(`CREATE TABLE "user" ("id" character varying NOT NULL, "usd_swapped" text NOT NULL, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`)
@@ -43,6 +40,10 @@ module.exports = class Data1663037022439 {
     await db.query(`CREATE TABLE "pair" ("id" character varying NOT NULL, "reserve0" text NOT NULL, "reserve1" text NOT NULL, "total_supply" text NOT NULL, "reserve_eth" text NOT NULL, "reserve_usd" text NOT NULL, "tracked_reserve_eth" text NOT NULL, "token0_price" text NOT NULL, "token1_price" text NOT NULL, "volume_token0" text NOT NULL, "volume_token1" text NOT NULL, "volume_usd" text NOT NULL, "untracked_volume_usd" text NOT NULL, "tx_count" integer NOT NULL, "created_at_timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "created_at_block_number" numeric NOT NULL, "liquidity_provider_count" integer NOT NULL, "token0_id" character varying, "token1_id" character varying, CONSTRAINT "PK_3eaf216329c5c50aedb94fa797e" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_f74dc53460944a424b56b8f7da" ON "pair" ("token0_id") `)
     await db.query(`CREATE INDEX "IDX_4419691fc411b8af754dfa65ce" ON "pair" ("token1_id") `)
+    await db.query(`CREATE TABLE "pair_day_data" ("id" character varying NOT NULL, "date" TIMESTAMP WITH TIME ZONE NOT NULL, "pair_address" text NOT NULL, "reserve0" text NOT NULL, "reserve1" text NOT NULL, "total_supply" text NOT NULL, "reserve_usd" text NOT NULL, "daily_volume_token0" text NOT NULL, "daily_volume_token1" text NOT NULL, "daily_volume_usd" text NOT NULL, "daily_txns" integer NOT NULL, "pair_id" character varying, "token0_id" character varying, "token1_id" character varying, CONSTRAINT "PK_ac35ed26ab0c71d491a62e2881a" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE INDEX "IDX_d8ba7d7d7ad9f0e1c2933a0b7e" ON "pair_day_data" ("pair_id") `)
+    await db.query(`CREATE INDEX "IDX_88f6e19c40b47053e6e197db1c" ON "pair_day_data" ("token0_id") `)
+    await db.query(`CREATE INDEX "IDX_ce435d6fc7c373d58e7aab156d" ON "pair_day_data" ("token1_id") `)
     await db.query(`CREATE TABLE "token" ("id" character varying NOT NULL, "symbol" text NOT NULL, "name" text NOT NULL, "decimals" integer NOT NULL, "total_supply" text NOT NULL, "trade_volume" text NOT NULL, "trade_volume_usd" text NOT NULL, "untracked_volume_usd" text NOT NULL, "tx_count" integer NOT NULL, "total_liquidity" text NOT NULL, "derived_eth" text NOT NULL, CONSTRAINT "PK_82fae97f905930df5d62a702fc9" PRIMARY KEY ("id"))`)
     await db.query(`CREATE TABLE "bundle" ("id" character varying NOT NULL, "eth_price" text NOT NULL, CONSTRAINT "PK_637e3f87e837d6532109c198dea" PRIMARY KEY ("id"))`)
     await db.query(`CREATE TABLE "factory_day_data" ("id" character varying NOT NULL, "date" TIMESTAMP WITH TIME ZONE NOT NULL, "daily_volume_eth" text NOT NULL, "daily_volume_usd" text NOT NULL, "daily_volume_untracked" text NOT NULL, "total_volume_eth" text NOT NULL, "total_liquidity_eth" text NOT NULL, "total_volume_usd" text NOT NULL, "total_liquidity_usd" text NOT NULL, "tx_count" integer NOT NULL, CONSTRAINT "PK_4b56c54390ce8e399d8e37e169d" PRIMARY KEY ("id"))`)
@@ -57,8 +58,6 @@ module.exports = class Data1663037022439 {
     await db.query(`ALTER TABLE "zenlink_info" ADD CONSTRAINT "FK_9a6b55d2085464668b622dffe64" FOREIGN KEY ("factory_id") REFERENCES "factory"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "zenlink_info" ADD CONSTRAINT "FK_0795adc3723792868094ec76c07" FOREIGN KEY ("stable_swap_info_id") REFERENCES "stable_swap_info"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "token_day_data" ADD CONSTRAINT "FK_b8950a8bc7b60231137573740ea" FOREIGN KEY ("token_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-    await db.query(`ALTER TABLE "pair_day_data" ADD CONSTRAINT "FK_88f6e19c40b47053e6e197db1c9" FOREIGN KEY ("token0_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-    await db.query(`ALTER TABLE "pair_day_data" ADD CONSTRAINT "FK_ce435d6fc7c373d58e7aab156d9" FOREIGN KEY ("token1_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "pair_hour_data" ADD CONSTRAINT "FK_cf50c55389e428096a68598ee33" FOREIGN KEY ("pair_id") REFERENCES "pair"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "liquidity_position" ADD CONSTRAINT "FK_781470585a67fef4e215a599773" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "liquidity_position" ADD CONSTRAINT "FK_5a626c8b8962dc01e0f8801be61" FOREIGN KEY ("pair_id") REFERENCES "pair"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
@@ -73,6 +72,9 @@ module.exports = class Data1663037022439 {
     await db.query(`ALTER TABLE "swap" ADD CONSTRAINT "FK_3571ab1dad7640a6b93c705b8f7" FOREIGN KEY ("pair_id") REFERENCES "pair"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "pair" ADD CONSTRAINT "FK_f74dc53460944a424b56b8f7da5" FOREIGN KEY ("token0_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "pair" ADD CONSTRAINT "FK_4419691fc411b8af754dfa65ce4" FOREIGN KEY ("token1_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+    await db.query(`ALTER TABLE "pair_day_data" ADD CONSTRAINT "FK_d8ba7d7d7ad9f0e1c2933a0b7e2" FOREIGN KEY ("pair_id") REFERENCES "pair"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+    await db.query(`ALTER TABLE "pair_day_data" ADD CONSTRAINT "FK_88f6e19c40b47053e6e197db1c9" FOREIGN KEY ("token0_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+    await db.query(`ALTER TABLE "pair_day_data" ADD CONSTRAINT "FK_ce435d6fc7c373d58e7aab156d9" FOREIGN KEY ("token1_id") REFERENCES "token"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "zenlink_day_info" ADD CONSTRAINT "FK_9f281ffbf4f668c1671ae24aeb0" FOREIGN KEY ("standard_info_id") REFERENCES "factory_day_data"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "zenlink_day_info" ADD CONSTRAINT "FK_3049b8ac70203e95dfc6b42c027" FOREIGN KEY ("stable_info_id") REFERENCES "stable_swap_day_data"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
   }
@@ -93,9 +95,6 @@ module.exports = class Data1663037022439 {
     await db.query(`DROP INDEX "public"."IDX_0795adc3723792868094ec76c0"`)
     await db.query(`DROP TABLE "token_day_data"`)
     await db.query(`DROP INDEX "public"."IDX_b8950a8bc7b60231137573740e"`)
-    await db.query(`DROP TABLE "pair_day_data"`)
-    await db.query(`DROP INDEX "public"."IDX_88f6e19c40b47053e6e197db1c"`)
-    await db.query(`DROP INDEX "public"."IDX_ce435d6fc7c373d58e7aab156d"`)
     await db.query(`DROP TABLE "pair_hour_data"`)
     await db.query(`DROP INDEX "public"."IDX_cf50c55389e428096a68598ee3"`)
     await db.query(`DROP TABLE "user"`)
@@ -119,6 +118,10 @@ module.exports = class Data1663037022439 {
     await db.query(`DROP TABLE "pair"`)
     await db.query(`DROP INDEX "public"."IDX_f74dc53460944a424b56b8f7da"`)
     await db.query(`DROP INDEX "public"."IDX_4419691fc411b8af754dfa65ce"`)
+    await db.query(`DROP TABLE "pair_day_data"`)
+    await db.query(`DROP INDEX "public"."IDX_d8ba7d7d7ad9f0e1c2933a0b7e"`)
+    await db.query(`DROP INDEX "public"."IDX_88f6e19c40b47053e6e197db1c"`)
+    await db.query(`DROP INDEX "public"."IDX_ce435d6fc7c373d58e7aab156d"`)
     await db.query(`DROP TABLE "token"`)
     await db.query(`DROP TABLE "bundle"`)
     await db.query(`DROP TABLE "factory_day_data"`)
@@ -133,8 +136,6 @@ module.exports = class Data1663037022439 {
     await db.query(`ALTER TABLE "zenlink_info" DROP CONSTRAINT "FK_9a6b55d2085464668b622dffe64"`)
     await db.query(`ALTER TABLE "zenlink_info" DROP CONSTRAINT "FK_0795adc3723792868094ec76c07"`)
     await db.query(`ALTER TABLE "token_day_data" DROP CONSTRAINT "FK_b8950a8bc7b60231137573740ea"`)
-    await db.query(`ALTER TABLE "pair_day_data" DROP CONSTRAINT "FK_88f6e19c40b47053e6e197db1c9"`)
-    await db.query(`ALTER TABLE "pair_day_data" DROP CONSTRAINT "FK_ce435d6fc7c373d58e7aab156d9"`)
     await db.query(`ALTER TABLE "pair_hour_data" DROP CONSTRAINT "FK_cf50c55389e428096a68598ee33"`)
     await db.query(`ALTER TABLE "liquidity_position" DROP CONSTRAINT "FK_781470585a67fef4e215a599773"`)
     await db.query(`ALTER TABLE "liquidity_position" DROP CONSTRAINT "FK_5a626c8b8962dc01e0f8801be61"`)
@@ -149,6 +150,9 @@ module.exports = class Data1663037022439 {
     await db.query(`ALTER TABLE "swap" DROP CONSTRAINT "FK_3571ab1dad7640a6b93c705b8f7"`)
     await db.query(`ALTER TABLE "pair" DROP CONSTRAINT "FK_f74dc53460944a424b56b8f7da5"`)
     await db.query(`ALTER TABLE "pair" DROP CONSTRAINT "FK_4419691fc411b8af754dfa65ce4"`)
+    await db.query(`ALTER TABLE "pair_day_data" DROP CONSTRAINT "FK_d8ba7d7d7ad9f0e1c2933a0b7e2"`)
+    await db.query(`ALTER TABLE "pair_day_data" DROP CONSTRAINT "FK_88f6e19c40b47053e6e197db1c9"`)
+    await db.query(`ALTER TABLE "pair_day_data" DROP CONSTRAINT "FK_ce435d6fc7c373d58e7aab156d9"`)
     await db.query(`ALTER TABLE "zenlink_day_info" DROP CONSTRAINT "FK_9f281ffbf4f668c1671ae24aeb0"`)
     await db.query(`ALTER TABLE "zenlink_day_info" DROP CONSTRAINT "FK_3049b8ac70203e95dfc6b42c027"`)
   }

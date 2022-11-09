@@ -62,6 +62,7 @@ export async function updatePairDayData(ctx: EvmLogHandlerContext<Store>): Promi
       date: new Date(dayStartTimestamp),
       token0: pair.token0,
       token1: pair.token1,
+      pair,
       pairAddress: contractAddress,
       dailyVolumeToken0: ZERO_BD.toString(),
       dailyVolumeToken1: ZERO_BD.toString(),

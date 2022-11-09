@@ -1,4 +1,5 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Pair} from "./pair.model"
 import {Token} from "./token.model"
 
 @Entity_()
@@ -15,6 +16,10 @@ export class PairDayData {
 
   @Column_("text", {nullable: false})
   pairAddress!: string
+
+  @Index_()
+  @ManyToOne_(() => Pair, {nullable: true})
+  pair!: Pair
 
   @Index_()
   @ManyToOne_(() => Token, {nullable: true})
