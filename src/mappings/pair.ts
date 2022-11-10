@@ -1,6 +1,7 @@
 import { CommonHandlerContext, EvmLogHandlerContext } from "@subsquid/substrate-processor";
 import { Store } from "@subsquid/typeorm-store";
 import { Big as BigDecimal } from 'big.js'
+import { BigNumber } from "ethers";
 import * as pairAbi from '../abis/pair'
 import { ADDRESS_ZERO, ZERO_BD } from "../consts";
 import { getPair } from "../entities/pair";
@@ -78,7 +79,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
 
   // mints
   if (from === ADDRESS_ZERO) {
-    pair.totalSupply = BigDecimal(pair.totalSupply).plus(value).toFixed(6)
+    pair.totalSupply = BigNumber.from(pair.totalSupply).add(value).toString()
 
     if (!mints.length || await isCompleteMint(ctx, mints[mints.length - 1])) {
       const mint = new Mint({
@@ -97,7 +98,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
 
   // burn
   if (to === ADDRESS_ZERO && from === pair.id) {
-    pair.totalSupply = BigDecimal(pair.totalSupply).minus(value).toFixed(6)
+    pair.totalSupply = BigNumber.from(pair.totalSupply).sub(value).toString()
 
     const { burns } = transaction
     let burn: Burn
