@@ -58,7 +58,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
   if (!pair) return
 
   // liquidity token amount being transfered
-  const value = convertTokenToDecimal(data.value.toBigInt(), 18)
+  const value = data.value.toString()
 
   // get or create transaction
   let transaction = await getTransaction(ctx, ctx.event.evmTxHash)
@@ -86,7 +86,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
         transaction,
         pair,
         to,
-        liquidity: value.toFixed(6),
+        liquidity: value,
         timestamp: new Date(ctx.block.timestamp)
       })
       await ctx.store.save(mint)
@@ -111,7 +111,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
           transaction,
           needsComplete: false,
           pair,
-          liquidity: value.toFixed(6),
+          liquidity: value,
           timestamp: new Date(ctx.block.timestamp)
         })
       }
@@ -121,7 +121,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
         transaction,
         needsComplete: false,
         pair,
-        liquidity: value.toFixed(6),
+        liquidity: value,
         timestamp: new Date(ctx.block.timestamp)
       })
     }
@@ -162,10 +162,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
     }
     const position = await updateLiquidityPosition(ctx, pair, user)
     const pairContract = new pairAbi.Contract(ctx, contractAddress)
-    position.liquidityTokenBalance = convertTokenToDecimal(
-      (await pairContract.balanceOf(from)).toBigInt(),
-      18
-    ).toFixed(6)
+    position.liquidityTokenBalance = (await pairContract.balanceOf(from)).toString()
     await ctx.store.save(position)
     await createLiquiditySnapShot(ctx, pair, position)
   }
@@ -182,10 +179,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
     }
     const position = await updateLiquidityPosition(ctx, pair, user)
     const pairContract = new pairAbi.Contract(ctx, contractAddress)
-    position.liquidityTokenBalance = convertTokenToDecimal(
-      (await pairContract.balanceOf(to)).toBigInt(),
-      18
-    ).toFixed(6)
+    position.liquidityTokenBalance =  (await pairContract.balanceOf(to)).toString()
     await ctx.store.save(position)
     await createLiquiditySnapShot(ctx, pair, position)
   }
@@ -264,8 +258,8 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
     .minus(pair.reserve1)
     .toFixed(6)
 
-  pair.reserve0 = convertTokenToDecimal(data.reserve0.toBigInt(), token0.decimals).toFixed(6)
-  pair.reserve1 = convertTokenToDecimal(data.reserve1.toBigInt(), token1.decimals).toFixed(6)
+  pair.reserve0 = data.reserve0.toString()
+  pair.reserve1 = data.reserve1.toString()
   pair.token0Price = !BigDecimal(pair.reserve1).eq(ZERO_BD)
     ? BigDecimal(pair.reserve0).div(pair.reserve1).toFixed(6)
     : ZERO_BD.toFixed(6)
