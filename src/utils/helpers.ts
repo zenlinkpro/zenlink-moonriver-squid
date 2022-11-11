@@ -8,7 +8,7 @@ interface LiquidityPositionData {
 }
 
 export function convertTokenToDecimal(amount: bigint, decimals: number): BigDecimal {
-  return BigDecimal(amount.toString()).div((10 ** decimals).toString())
+  return BigDecimal(amount.toString()).div((10 ** decimals).toFixed(6))
 }
 
 export function createLiquidityPosition(data: LiquidityPositionData): LiquidityPosition {

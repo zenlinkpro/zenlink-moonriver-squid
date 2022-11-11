@@ -157,13 +157,13 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
       user = new User({
         id: from,
         liquidityPositions: [],
-        usdSwapped: ZERO_BD.toFixed(6)
+        usdSwapped: ZERO_BD.toString()
       })
       await ctx.store.save(user)
     }
     const position = await updateLiquidityPosition(ctx, pair, user)
     const pairContract = new pairAbi.Contract(ctx, contractAddress)
-    position.liquidityTokenBalance = (await pairContract.balanceOf(from)).toString()
+    position.liquidityTokenBalance =(await pairContract.balanceOf(from)).toString()
     await ctx.store.save(position)
     await createLiquiditySnapShot(ctx, pair, position)
   }
@@ -180,7 +180,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
     }
     const position = await updateLiquidityPosition(ctx, pair, user)
     const pairContract = new pairAbi.Contract(ctx, contractAddress)
-    position.liquidityTokenBalance =  (await pairContract.balanceOf(to)).toString()
+    position.liquidityTokenBalance = (await pairContract.balanceOf(to)).toString()
     await ctx.store.save(position)
     await createLiquiditySnapShot(ctx, pair, position)
   }
@@ -254,18 +254,20 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
     .toFixed(6)
   token0.totalLiquidity = BigDecimal(token0.totalLiquidity)
     .minus(pair.reserve0)
-    .toFixed(6)
+    .toString()
   token1.totalLiquidity = BigDecimal(token1.totalLiquidity)
     .minus(pair.reserve1)
-    .toFixed(6)
+    .toString()
 
   pair.reserve0 = data.reserve0.toString()
   pair.reserve1 = data.reserve1.toString()
-  pair.token0Price = !BigDecimal(pair.reserve1).eq(ZERO_BD)
-    ? BigDecimal(pair.reserve0).div(pair.reserve1).toFixed(6)
+  const reserve0Decimal = convertTokenToDecimal(data.reserve0.toBigInt(), token0.decimals)
+  const reserve1Decimal = convertTokenToDecimal(data.reserve1.toBigInt(), token1.decimals)
+  pair.token0Price = !BigDecimal(reserve1Decimal).eq(ZERO_BD)
+    ? BigDecimal(reserve0Decimal).div(reserve1Decimal).toFixed(6)
     : ZERO_BD.toFixed(6)
-  pair.token1Price = !BigDecimal(pair.reserve0).eq(ZERO_BD)
-    ? BigDecimal(pair.reserve1).div(pair.reserve0).toFixed(6)
+  pair.token1Price = !BigDecimal(reserve0Decimal).eq(ZERO_BD)
+    ? BigDecimal(reserve1Decimal).div(reserve0Decimal).toFixed(6)
     : ZERO_BD.toFixed(6)
   await ctx.store.save(pair)
 
@@ -283,29 +285,29 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
 
     // both are whitelist tokens, take average of both amounts
     if (WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
-      trackedLiquidityETH = BigDecimal(pair.reserve0)
+      trackedLiquidityETH = BigDecimal(reserve0Decimal)
         .times(price0)
-        .plus(BigDecimal(pair.reserve1)
+        .plus(BigDecimal(reserve1Decimal)
         .times(price1))
     }
 
     // take double value of the whitelisted token amount
     if (WHITELIST.includes(token0.id) && !WHITELIST.includes(token1.id)) {
-      trackedLiquidityETH = BigDecimal(pair.reserve0).times(price0).times(2)
+      trackedLiquidityETH = BigDecimal(reserve0Decimal).times(price0).times(2)
     }
 
     // take double value of the whitelisted token amount
     if (!WHITELIST.includes(token0.id) && WHITELIST.includes(token1.id)) {
-      trackedLiquidityETH = BigDecimal(pair.reserve1).times(price1).times(2)
+      trackedLiquidityETH = BigDecimal(reserve1Decimal).times(price1).times(2)
     }
 
     trackedLiquidityETH = trackedLiquidityETH.div(bundle.ethPrice)
   }
 
   pair.trackedReserveETH = trackedLiquidityETH.toFixed(6)
-  pair.reserveETH = BigDecimal(pair.reserve0)
+  pair.reserveETH = BigDecimal(reserve0Decimal)
     .times(token0.derivedETH)
-    .plus(BigDecimal(pair.reserve1).times(token1.derivedETH))
+    .plus(BigDecimal(reserve1Decimal).times(token1.derivedETH))
     .toFixed(6)
   pair.reserveUSD = BigDecimal(pair.reserveETH).times(bundle.ethPrice).toFixed(6)
   await ctx.store.save(pair)
@@ -316,8 +318,8 @@ export async function handleSync(ctx: EvmLogHandlerContext<Store>): Promise<void
   await ctx.store.save(factory)
 
   // now correctly set liquidity amounts for each token
-  token0.totalLiquidity = BigDecimal(token0.totalLiquidity).plus(pair.reserve0).toFixed(6)
-  token1.totalLiquidity = BigDecimal(token1.totalLiquidity).plus(pair.reserve1).toFixed(6)
+  token0.totalLiquidity = BigDecimal(token0.totalLiquidity).plus(pair.reserve0).toString()
+  token1.totalLiquidity = BigDecimal(token1.totalLiquidity).plus(pair.reserve1).toString()
   await ctx.store.save([token0, token1])
 }
 
@@ -354,8 +356,8 @@ export async function handleSwap(ctx: EvmLogHandlerContext<Store>): Promise<void
   const price0 = BigDecimal(token0.derivedETH).times(bundle.ethPrice)
   const price1 = BigDecimal(token1.derivedETH).times(bundle.ethPrice)
 
-  const reserve0USD = BigDecimal(pair.reserve0).times(price0)
-  const reserve1USD = BigDecimal(pair.reserve1).times(price1)
+  const reserve0USD = convertTokenToDecimal(BigInt(pair.reserve0), token0.decimals).times(price0)
+  const reserve1USD = convertTokenToDecimal(BigInt(pair.reserve1), token1.decimals).times(price1)
 
   // if less than 5 LPs, require high minimum reserve amount amount or return 0
   if (

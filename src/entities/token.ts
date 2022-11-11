@@ -1,7 +1,6 @@
 import { CommonHandlerContext } from '@subsquid/substrate-processor'
 import { Store } from '@subsquid/typeorm-store'
 import { ZERO_BD } from '../consts'
-import { convertTokenToDecimal } from '../utils/helpers'
 import { Token } from '../model'
 import * as ERC20 from '../abis/ERC20'
 
@@ -20,7 +19,7 @@ export async function getOrCreateToken(ctx: CommonHandlerContext<Store>, address
       id: address.toLowerCase(),
       symbol,
       name,
-      totalSupply: convertTokenToDecimal(totalSupply.toBigInt(), decimals).toString(),
+      totalSupply: totalSupply.toString(),
       decimals,
       derivedETH: ZERO_BD.toString(),
       tradeVolume: ZERO_BD.toString(),
