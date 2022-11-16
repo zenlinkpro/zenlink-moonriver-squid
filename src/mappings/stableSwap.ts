@@ -1,28 +1,107 @@
-import { decodeHex, EvmLogHandlerContext } from "@subsquid/substrate-processor";
+import { CommonHandlerContext, decodeHex, EvmLogHandlerContext } from "@subsquid/substrate-processor";
 import { Store } from "@subsquid/typeorm-store";
 import { Big as BigDecimal } from 'big.js'
 import { getBalancesSwap, getOrCreateStableSwap } from "../entities/stableSwap";
 import * as StableSwapContract from "../abis/StableSwap"
+import * as ERC20Contract from "../abis/ERC20"
 import {
+  StableSwap,
   StableSwapAddLiquidityEventData,
   StableSwapEvent,
   StableSwapExchange,
+  StableSwapLiquidityPosition,
   StableSwapNewFeeEventData,
   StableSwapRampAEventData,
   StableSwapRemoveLiquidityEventData,
   StableSwapStopRampAEventData,
-  StableSwapTokenExchangeData
+  StableSwapTokenExchangeData,
+  User
 } from "../model";
 import { getOrCreateToken } from "../entities/token";
-import { ZERO_BD } from "../consts";
+import { ADDRESS_ZERO, ZERO_BD, ZERO_BI } from "../consts";
 import { findUSDPerToken } from "../utils/pricing";
-import { 
-  updateStableDayData, 
-  updateStableSwapDayData, 
-  updateStableSwapInfo, 
-  updateStableSwapTvl, 
-  updateZenlinkInfo 
+import {
+  updateStableDayData,
+  updateStableSwapDayData,
+  updateStableSwapHourData,
+  updateStableSwapInfo,
+  updateStableSwapTvl,
+  updateZenlinkInfo
 } from "../utils/updates";
+
+async function updateStableSwapLiquidityPosition(
+  ctx: CommonHandlerContext<Store>,
+  stableSwap: StableSwap,
+  user: User
+): Promise<StableSwapLiquidityPosition> {
+  const id = `${stableSwap.lpToken}-${user.id}`
+  let position = await ctx.store.get(StableSwapLiquidityPosition, id)
+  if (!position) {
+    position = new StableSwapLiquidityPosition({
+      id,
+      stableSwap,
+      user,
+      liquidityTokenBalance: ZERO_BI.toString()
+    })
+
+    await ctx.store.save(position)
+  }
+  return position
+}
+
+export async function handleStableSwapTransfer(ctx: EvmLogHandlerContext<Store>) {
+  const evmLogArgs = ctx.event.args.log || ctx.event.args;
+  const event = ERC20Contract.events['Transfer(address,address,uint256)']
+    .decode(evmLogArgs)
+
+  let { from, to } = event
+  from = from.toLowerCase()
+  to = to.toLowerCase()
+
+  const stableSwap = await ctx.store.get(StableSwap, { where: { lpToken: evmLogArgs.address } })
+  if (!stableSwap) return
+
+  const lpContract = new ERC20Contract.Contract(ctx, evmLogArgs.address)
+
+  // mints or burns
+  if (from === ADDRESS_ZERO || to === ADDRESS_ZERO) {
+    stableSwap.lpTotalSupply = (await lpContract.totalSupply()).toString()
+  }
+
+  if (from !== ADDRESS_ZERO && from !== stableSwap.address.toString()) {
+    let user = await ctx.store.get(User, from)
+    if (!user) {
+      user = new User({
+        id: from,
+        liquidityPositions: [],
+        stableSwapLiquidityPositions: [],
+        usdSwapped: ZERO_BD.toString()
+      })
+      await ctx.store.save(user)
+    }
+    const position = await updateStableSwapLiquidityPosition(ctx, stableSwap, user)
+    position.liquidityTokenBalance =(await lpContract.balanceOf(from)).toString()
+    await ctx.store.save(position)
+  }
+
+  if (to !== ADDRESS_ZERO && to !== stableSwap.address.toString()) {
+    let user = await ctx.store.get(User, to)
+    if (!user) {
+      user = new User({
+        id: to,
+        liquidityPositions: [],
+        stableSwapLiquidityPositions: [],
+        usdSwapped: ZERO_BD.toString()
+      })
+      await ctx.store.save(user)
+    }
+    const position = await updateStableSwapLiquidityPosition(ctx, stableSwap, user)
+    position.liquidityTokenBalance =(await lpContract.balanceOf(to)).toString()
+    await ctx.store.save(position)
+  }
+
+  await ctx.store.save(stableSwap)
+}
 
 export async function handleStableSwapNewFee(ctx: EvmLogHandlerContext<Store>): Promise<void> {
   const evmLogArgs = ctx.event.args.log || ctx.event.args;
@@ -108,6 +187,7 @@ export async function handleStableSwapAddLiquidity(ctx: EvmLogHandlerContext<Sto
   await updateStableSwapTvl(ctx, stableSwap)
   await updateStableSwapInfo(ctx)
   await updateStableSwapDayData(ctx, stableSwap)
+  await updateStableSwapHourData(ctx, stableSwap)
   await updateStableDayData(ctx)
 
   const event = StableSwapContract.events['AddLiquidity(address,uint256[],uint256[],uint256,uint256)']
@@ -140,6 +220,7 @@ export async function handleStableSwapRemoveLiquidity(ctx: EvmLogHandlerContext<
   await updateStableSwapTvl(ctx, stableSwap)
   await updateStableSwapInfo(ctx)
   await updateStableSwapDayData(ctx, stableSwap)
+  await updateStableSwapHourData(ctx, stableSwap)
   await updateStableDayData(ctx)
 
   const event = StableSwapContract.events['RemoveLiquidity(address,uint256[],uint256[],uint256)']
@@ -170,6 +251,7 @@ export async function handleStableSwapRemoveLiquidityOne(ctx: EvmLogHandlerConte
   await updateStableSwapTvl(ctx, stableSwap)
   await updateStableSwapInfo(ctx)
   await updateStableSwapDayData(ctx, stableSwap)
+  await updateStableSwapHourData(ctx, stableSwap)
   await updateStableDayData(ctx)
 
   const event = StableSwapContract.events['RemoveLiquidityOne(address,uint256,uint256,uint256)']
@@ -208,6 +290,7 @@ export async function handleStableSwapRemoveLiquidityImbalance(ctx: EvmLogHandle
   await updateStableSwapTvl(ctx, stableSwap)
   await updateStableSwapInfo(ctx)
   await updateStableSwapDayData(ctx, stableSwap)
+  await updateStableSwapHourData(ctx, stableSwap)
   await updateStableDayData(ctx)
 
   const event = StableSwapContract.events['RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)']
@@ -252,6 +335,7 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
   await ctx.store.save(stableSwap)
 
   const stableSwapDayData = await updateStableSwapDayData(ctx, stableSwap)
+  const stableSwapHourData = await updateStableSwapHourData(ctx, stableSwap)
   const stableDayData = await updateStableDayData(ctx)
 
   const event = StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)']
@@ -284,10 +368,12 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
 
     stableSwap.volumeUSD = BigDecimal(stableSwap.volumeUSD).add(volume).toFixed(6)
     stableSwapDayData.dailyVolumeUSD = BigDecimal(stableSwapDayData.dailyVolumeUSD).add(volume).toFixed(6)
+    stableSwapHourData.hourlyVolumeUSD = BigDecimal(stableSwapHourData.hourlyVolumeUSD).add(volume).toFixed(6)
     stableDayData.dailyVolumeUSD = BigDecimal(stableDayData.dailyVolumeUSD).add(volume).toFixed(6)
 
     await ctx.store.save(stableSwap)
     await ctx.store.save(stableSwapDayData)
+    await ctx.store.save(stableSwapHourData)
     await ctx.store.save(stableDayData)
   }
 

@@ -1,22 +1,24 @@
 import { lookupArchive } from "@subsquid/archive-registry";
 import { EvmLogHandlerContext, SubstrateBatchProcessor } from "@subsquid/substrate-processor";
 import { Store, TypeormDatabase } from "@subsquid/typeorm-store";
-import { CHAIN_NODE, FACTORY_ADDRESS, FOUR_POOL } from "./consts";
+import { CHAIN_NODE, FACTORY_ADDRESS, FOUR_POOL, FOUR_POOL_LP } from "./consts";
 import * as factory from './abis/factory'
 import * as pair from './abis/pair'
+import * as erc20 from './abis/ERC20'
 import { handleNewPair } from "./mappings/factory";
 import { Pair } from "./model";
 import { handleBurn, handleMint, handleSwap, handleSync, handleTransfer } from "./mappings/pair";
 import * as StableSwapContract from "./abis/StableSwap"
-import { 
-  handleRampA, 
-  handleStableSwapAddLiquidity, 
-  handleStableSwapExchange, 
-  handleStableSwapNewFee, 
-  handleStableSwapRemoveLiquidity, 
-  handleStableSwapRemoveLiquidityImbalance, 
-  handleStableSwapRemoveLiquidityOne, 
-  handleStopRampA 
+import {
+  handleRampA,
+  handleStableSwapAddLiquidity,
+  handleStableSwapExchange,
+  handleStableSwapNewFee,
+  handleStableSwapRemoveLiquidity,
+  handleStableSwapRemoveLiquidityImbalance,
+  handleStableSwapRemoveLiquidityOne,
+  handleStableSwapTransfer,
+  handleStopRampA
 } from "./mappings/stableSwap";
 
 const database = new TypeormDatabase()
@@ -52,6 +54,14 @@ const processor = new SubstrateBatchProcessor()
         StableSwapContract.events['RemoveLiquidityOne(address,uint256,uint256,uint256)'].topic,
         StableSwapContract.events['RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)'].topic,
         StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic
+      ],
+    ],
+    range: { from: 2341125 }
+  })
+  .addEvmLog(FOUR_POOL_LP, {
+    filter: [
+      [
+        erc20.events['Transfer(address,address,uint256)'].topic,
       ],
     ],
     range: { from: 2341125 }
@@ -123,6 +133,15 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
           break
         case StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic:
           await handleStableSwapExchange(ctx)
+          break
+        default:
+          break
+      }
+      break
+    case FOUR_POOL_LP:
+      switch (evmLogArgs.topics[0]) {
+        case erc20.events['Transfer(address,address,uint256)'].topic:
+          await handleStableSwapTransfer(ctx)
           break
         default:
           break

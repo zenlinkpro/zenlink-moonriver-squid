@@ -1,8 +1,8 @@
-import { decodeHex, EvmLogHandlerContext } from "@subsquid/substrate-processor";
+import { EvmLogHandlerContext } from "@subsquid/substrate-processor";
 import { Store } from "@subsquid/typeorm-store";
 import { StableSwap } from "../model";
 import * as StableSwapContract from "../abis/StableSwap"
-import { ADDRESS_ZERO, ZERO_BD } from "../consts";
+import { ADDRESS_ZERO, ZERO_BD, ZERO_BI } from "../consts";
 import { getStableSwapInfo } from "./utils";
 
 interface SwapInfo {
@@ -28,14 +28,15 @@ export async function getOrCreateStableSwap(
     const stableSwapInfo = await getStableSwapInfo(ctx)
     stableSwap = new StableSwap({
       id: address,
-      address: decodeHex(address),
-      baseSwapAddress: decodeHex(info.baseSwapAddress),
+      address,
+      baseSwapAddress: info.baseSwapAddress,
       numTokens: info.tokens.length,
       tokens: info.tokens,
       baseTokens: info.tokens,
       allTokens: info.tokens,
       balances: info.balances,
-      lpToken: decodeHex(info.lpToken),
+      lpToken: info.lpToken,
+      lpTotalSupply: ZERO_BI.toString(),
       a: info.a,
       swapFee: info.swapFee,
       adminFee: info.adminFee,
@@ -92,7 +93,7 @@ export async function getSwapInfo(
     swapFee: swapStorage[1].toBigInt(),
     adminFee: swapStorage[2].toBigInt(),
     virtualPrice: (await swapContract.getVirtualPrice()).toBigInt(),
-    lpToken: swapStorage[0],
+    lpToken: swapStorage[0].toLowerCase(),
   }
 }
 

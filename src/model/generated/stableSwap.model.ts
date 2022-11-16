@@ -4,6 +4,7 @@ import {StableSwapInfo} from "./stableSwapInfo.model"
 import {StableSwapEvent} from "./stableSwapEvent.model"
 import {StableSwapExchange} from "./stableSwapExchange.model"
 import {StableSwapDayData} from "./stableSwapDayData.model"
+import {StableSwapHourData} from "./stableSwapHourData.model"
 
 @Entity_()
 export class StableSwap {
@@ -14,11 +15,11 @@ export class StableSwap {
   @PrimaryColumn_()
   id!: string
 
-  @Column_("bytea", {nullable: false})
-  address!: Uint8Array
+  @Column_("text", {nullable: false})
+  address!: string
 
-  @Column_("bytea", {nullable: false})
-  baseSwapAddress!: Uint8Array
+  @Column_("text", {nullable: false})
+  baseSwapAddress!: string
 
   @Column_("int4", {nullable: false})
   numTokens!: number
@@ -35,8 +36,11 @@ export class StableSwap {
   @Column_("numeric", {array: true, nullable: false})
   balances!: (bigint)[]
 
-  @Column_("bytea", {nullable: false})
-  lpToken!: Uint8Array
+  @Column_("text", {nullable: false})
+  lpToken!: string
+
+  @Column_("text", {nullable: false})
+  lpTotalSupply!: string
 
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   a!: bigint
@@ -62,6 +66,9 @@ export class StableSwap {
 
   @OneToMany_(() => StableSwapDayData, e => e.stableSwap)
   stableSwapDayData!: StableSwapDayData[]
+
+  @OneToMany_(() => StableSwapHourData, e => e.stableSwap)
+  stableSwapHourData!: StableSwapHourData[]
 
   /**
    * BigDecimal

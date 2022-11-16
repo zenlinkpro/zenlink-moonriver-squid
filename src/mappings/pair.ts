@@ -157,6 +157,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
       user = new User({
         id: from,
         liquidityPositions: [],
+        stableSwapLiquidityPositions: [],
         usdSwapped: ZERO_BD.toString()
       })
       await ctx.store.save(user)
@@ -174,6 +175,7 @@ export async function handleTransfer(ctx: EvmLogHandlerContext<Store>): Promise<
       user = new User({
         id: to,
         liquidityPositions: [],
+        stableSwapLiquidityPositions: [],
         usdSwapped: ZERO_BD.toFixed(6)
       })
       await ctx.store.save(user)
@@ -599,6 +601,7 @@ export async function handleBurn(ctx: EvmLogHandlerContext<Store>): Promise<void
     user = new User({
       id: data.sender,
       liquidityPositions: [],
+      stableSwapLiquidityPositions: [],
       usdSwapped: ZERO_BD.toFixed(6)
     })
     await ctx.store.save(user)

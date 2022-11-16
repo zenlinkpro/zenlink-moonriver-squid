@@ -1,7 +1,6 @@
-import { CommonHandlerContext, decodeHex } from "@subsquid/substrate-processor"
+import { CommonHandlerContext } from "@subsquid/substrate-processor"
 import { Store } from "@subsquid/typeorm-store"
 import { Big as BigDecimal } from 'big.js'
-import { Equal } from "typeorm"
 import { ONE_BD, ZERO_BD } from "../consts"
 import { getPair } from "../entities/pair"
 import { getOrCreateToken } from "../entities/token"
@@ -79,7 +78,7 @@ export async function findUSDPerToken(
   if (tokenUSDPrice.eq(ZERO_BD)) {
     // check for stableSwap lpToken
     const stableSwap = await ctx.store.findOneBy(StableSwap, {
-      lpToken: Equal(decodeHex(tokenId))
+      lpToken: tokenId
     })
     if (stableSwap) {
       const { tokens } = stableSwap

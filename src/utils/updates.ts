@@ -18,7 +18,8 @@ import {
   TokenDayData,
   FactoryDayData,
   ZenlinkDayInfo,
-  ZenlinkInfo
+  ZenlinkInfo,
+  StableSwapHourData
 } from "../model";
 import { findUSDPerToken } from "./pricing";
 
@@ -183,6 +184,30 @@ export async function updateStableSwapDayData(
   stableSwapDayData.tvlUSD = stableSwap.tvlUSD
   await ctx.store.save(stableSwapDayData)
   return stableSwapDayData
+}
+
+export async function updateStableSwapHourData(
+  ctx: EvmLogHandlerContext<Store>,
+  stableSwap: StableSwap
+): Promise<StableSwapHourData> {
+  const contractAddress = stableSwap.lpToken
+  const { timestamp } = ctx.block
+  const hourIndex = parseInt((timestamp / 3600000).toString(), 10)
+  const hourStartUnix = Number(hourIndex) * 3600000
+  const hourID = `${contractAddress}-${hourIndex}`
+  let stableSwapHourData = await ctx.store.get(StableSwapHourData, hourID)
+  if (!stableSwapHourData) {
+    stableSwapHourData = new StableSwapHourData({
+      id: hourID,
+      hourStartUnix: BigInt(hourStartUnix),
+      stableSwap,
+      hourlyVolumeUSD: ZERO_BD.toString(),
+      tvlUSD: ZERO_BD.toString(),
+    })
+  }
+  stableSwapHourData.tvlUSD = stableSwap.tvlUSD
+  await ctx.store.save(stableSwapHourData)
+  return stableSwapHourData
 }
 
 export async function updateStableDayData(ctx: EvmLogHandlerContext<Store>): Promise<StableDayData> {

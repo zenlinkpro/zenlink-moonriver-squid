@@ -59,10 +59,10 @@ type StableSwap @entity {
   id: ID!
 
    # swap address
-  address: Bytes!
+  address: String!
 
   # base swap address
-  baseSwapAddress: Bytes!
+  baseSwapAddress: String!
 
   # number of tokens supported
   numTokens: Int!
@@ -80,7 +80,8 @@ type StableSwap @entity {
   balances: [BigInt!]!
 
   # liquidity provider token
-  lpToken: Bytes!
+  lpToken: String!
+  lpTotalSupply: String!
 
   # amplification coefficient
   a: BigInt!
@@ -97,6 +98,7 @@ type StableSwap @entity {
   exchanges: [StableSwapExchange!] @derivedFrom(field: "stableSwap")
 
   stableSwapDayData: [StableSwapDayData!] @derivedFrom(field: "stableSwap")
+  stableSwapHourData: [StableSwapHourData!] @derivedFrom(field: "stableSwap")
 
   "BigDecimal"
   tvlUSD: String!
@@ -290,6 +292,7 @@ type User @entity {
   # user address
   id: ID!
   liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
+  stableSwapLiquidityPositions: [StableSwapLiquidityPosition!] @derivedFrom(field: "user")
   "BigDecimal"
   usdSwapped: String!
 }
@@ -299,6 +302,13 @@ type LiquidityPosition @entity {
   user: User!
   pair: Pair!
   "BigDecimal"
+  liquidityTokenBalance: String!
+}
+
+type StableSwapLiquidityPosition @entity {
+  id: ID!
+  user: User!
+  stableSwap: StableSwap!
   liquidityTokenBalance: String!
 }
 
@@ -502,6 +512,15 @@ type StableSwapDayData @entity {
   stableSwap: StableSwap!
 
   dailyVolumeUSD: String!
+  tvlUSD: String!
+}
+
+type StableSwapHourData @entity {
+  id: ID!
+  hourStartUnix: BigInt! # unix timestamp for start of hour
+  stableSwap: StableSwap!
+
+  hourlyVolumeUSD: String!
   tvlUSD: String!
 }
 
