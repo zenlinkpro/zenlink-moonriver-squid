@@ -24,7 +24,7 @@ import {
 const database = new TypeormDatabase()
 const processor = new SubstrateBatchProcessor()
   .setBatchSize(100)
-  .setBlockRange({ from: 2341124 })
+  .setBlockRange({ from: 1837375 })
   .setDataSource({
     chain: CHAIN_NODE,
     archive: lookupArchive('moonriver', { release: "FireSquid" })
@@ -56,7 +56,7 @@ const processor = new SubstrateBatchProcessor()
         StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic
       ],
     ],
-    range: { from: 2341125 }
+    range: { from: 1837375 }
   })
   .addEvmLog(FOUR_POOL_LP, {
     filter: [
@@ -64,7 +64,7 @@ const processor = new SubstrateBatchProcessor()
         erc20.events['Transfer(address,address,uint256)'].topic,
       ],
     ],
-    range: { from: 2341125 }
+    range: { from: 1837375 }
   })
 
 processor.run(database, async (ctx) => {
