@@ -24,7 +24,7 @@ import {
 import { findUSDPerToken } from "./pricing";
 
 export async function updateFactoryDayData(ctx: EvmLogHandlerContext<Store>): Promise<FactoryDayData> {
-  const factory = (await ctx.store.get(Factory, FACTORY_ADDRESS))!
+  const factory = (await ctx.store.get(Factory, FACTORY_ADDRESS))
   const { timestamp } = ctx.block
   const dayID = parseInt((timestamp / 86400000).toString(), 10)
   const dayStartTimestamp = Number(dayID) * 86400000
@@ -40,9 +40,9 @@ export async function updateFactoryDayData(ctx: EvmLogHandlerContext<Store>): Pr
       dailyVolumeUntracked: ZERO_BD.toString()
     })
   }
-  factoryDayData.totalLiquidityUSD = factory.totalLiquidityUSD
-  factoryDayData.totalLiquidityETH = factory.totalLiquidityETH
-  factoryDayData.txCount = factory.txCount
+  factoryDayData.totalLiquidityUSD = factory?.totalLiquidityUSD || ZERO_BD.toString()
+  factoryDayData.totalLiquidityETH = factory?.totalLiquidityETH || ZERO_BD.toString()
+  factoryDayData.txCount = factory?.txCount || 0
   await ctx.store.save(factoryDayData)
   await updateZenlinkDayInfo(ctx)
   return factoryDayData
@@ -282,13 +282,13 @@ export async function updateStableSwapInfo(ctx: EvmLogHandlerContext<Store>): Pr
 export async function updateZenlinkInfo(ctx: EvmLogHandlerContext<Store>): Promise<ZenlinkInfo> {
   const zenlinkInfo = await getZenlinkInfo(ctx)
   const { factory, stableSwapInfo } = zenlinkInfo
-  zenlinkInfo.totalTvlUSD = BigDecimal(factory.totalLiquidityUSD)
+  zenlinkInfo.totalTvlUSD = BigDecimal(factory?.totalLiquidityUSD || '0')
     .add(stableSwapInfo.totalTvlUSD)
     .toFixed(6)
-  zenlinkInfo.totalVolumeUSD = BigDecimal(factory.totalVolumeUSD)
+  zenlinkInfo.totalVolumeUSD = BigDecimal(factory?.totalVolumeUSD || '0')
     .add(stableSwapInfo.totalVolumeUSD)
     .toFixed(6)
-  zenlinkInfo.txCount = factory.txCount + stableSwapInfo.txCount
+  zenlinkInfo.txCount = (factory?.txCount || 0) + stableSwapInfo.txCount
   zenlinkInfo.updatedDate = new Date(ctx.block.timestamp)
   await ctx.store.save(zenlinkInfo)
   return zenlinkInfo
