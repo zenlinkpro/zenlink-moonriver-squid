@@ -23,7 +23,7 @@ import {
 
 const database = new TypeormDatabase()
 const processor = new SubstrateBatchProcessor()
-  .setBatchSize(100)
+  .setTypesBundle('moonbeam')
   .setBlockRange({ from: 1837375 })
   .setDataSource({
     chain: CHAIN_NODE,
