@@ -2,7 +2,7 @@ import { Big as BigDecimal } from 'big.js'
 
 export const knownContracts: ReadonlyArray<string> = []
 
-export const CHAIN_NODE = 'wss://moonriver.api.onfinality.io/ws?apikey=4cee6c91-bd74-48a4-bfd6-791e9b0343ac'
+export const CHAIN_NODE = 'wss://moonriver.api.onfinality.io/public-ws'
 
 // need to be lowercase
 export const FACTORY_ADDRESS = '0x28Eaa01DC747C4e9D37c5ca473E7d167E90F8d38'.toLowerCase()
