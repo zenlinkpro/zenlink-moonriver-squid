@@ -1,6 +1,7 @@
 import assert from 'assert'
-import {Chain, ChainContext, EventContext, Event, Result} from './support'
+import {Chain, ChainContext, EventContext, Event, Result, Option} from './support'
 import * as v49 from './v49'
+import * as v1801 from './v1801'
 
 export class EvmLogEvent {
   private readonly _chain: Chain
@@ -27,6 +28,21 @@ export class EvmLogEvent {
    */
   get asV49(): v49.EvmLog {
     assert(this.isV49)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * Ethereum events from contracts.
+   */
+  get isV1801(): boolean {
+    return this._chain.getEventHash('EVM.Log') === '4edddb5632dcffc943bfbdb42201f95b9c2ffa1df042e526a7c54a39f099056a'
+  }
+
+  /**
+   * Ethereum events from contracts.
+   */
+  get asV1801(): {log: v1801.Log} {
+    assert(this.isV1801)
     return this._chain.decodeEvent(this.event)
   }
 }

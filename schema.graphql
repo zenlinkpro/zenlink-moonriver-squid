@@ -100,6 +100,8 @@ type StableSwap @entity {
   stableSwapDayData: [StableSwapDayData!] @derivedFrom(field: "stableSwap")
   stableSwapHourData: [StableSwapHourData!] @derivedFrom(field: "stableSwap")
 
+  farm: [Farm!] @derivedFrom(field: "stableSwap")
+
   "BigDecimal"
   tvlUSD: String!
   "BigDecimal"
@@ -286,6 +288,7 @@ type Pair @entity {
   mints: [Mint!]! @derivedFrom(field: "pair")
   burns: [Burn!]! @derivedFrom(field: "pair")
   swaps: [Swap!]! @derivedFrom(field: "pair")
+  farm: [Farm!]  @derivedFrom(field: "pair")
 }
 
 type User @entity {
@@ -293,6 +296,7 @@ type User @entity {
   id: ID!
   liquidityPositions: [LiquidityPosition!] @derivedFrom(field: "user")
   stableSwapLiquidityPositions: [StableSwapLiquidityPosition!] @derivedFrom(field: "user")
+  stakePositions: [StakePosition!] @derivedFrom(field: "user")
   "BigDecimal"
   usdSwapped: String!
 }
@@ -541,4 +545,69 @@ type ZenlinkDayInfo @entity {
 
   dailyVolumeUSD: String!
   tvlUSD: String!
+}
+
+type SingleTokenLockDayData @entity {
+  id: ID!
+  singleTokenLock: SingleTokenLock!
+  date: DateTime!
+  totalLiquidity: String!
+  totalLiquidityUSD: String!
+  totalLiquidityETH: String!
+}
+
+type SingleTokenLockHourData  @entity {
+  id: ID!
+  hourStartUnix: BigInt! # unix timestamp for start of hour
+  singleTokenLock: SingleTokenLock!
+  totalLiquidity: String!
+  totalLiquidityUSD: String!
+  totalLiquidityETH: String!
+}
+
+
+type SingleTokenLock  @entity {
+  id: ID!
+  token: Token!
+  totalLiquidityUSD: String!
+  totalLiquidity: String!
+  totalLiquidityETH: String!
+  singleTokenLockDayData:[SingleTokenLockDayData!] @derivedFrom(field: "singleTokenLock")
+  singleTokenLockHourData:[SingleTokenLockHourData!] @derivedFrom(field: "singleTokenLock")
+  farm: [Farm!]  @derivedFrom(field: "singleTokenLock")
+
+}
+
+type StakePosition @entity {
+  id: ID!
+  user: User!
+  farm: Farm!
+  liquidityStakedBalance: BigInt!
+}
+
+
+type Farm @entity {
+  id: ID!
+  pid: BigInt!
+  singleTokenLock: SingleTokenLock
+  stableSwap: StableSwap
+  pair: Pair
+  stakeToken: String!
+  liquidityStaked: BigInt!
+  createdAtBlock: BigInt!
+  createdAtTimestamp: BigInt!
+
+  # stake apr
+  stakedUSD: String!
+  rewardUSDPerDay: String!
+  stakeApr: String!
+  incentives: [Incentive!]! @derivedFrom(field: "farm")
+  stakePositions: [StakePosition!] @derivedFrom(field: "farm")
+}
+
+type Incentive @entity {
+  id: ID!
+  farm: Farm!
+  rewardToken: Token!
+  rewardPerDay: String!
 }

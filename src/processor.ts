@@ -1,10 +1,11 @@
 import { lookupArchive } from "@subsquid/archive-registry";
 import { EvmLogHandlerContext, SubstrateBatchProcessor } from "@subsquid/substrate-processor";
 import { Store, TypeormDatabase } from "@subsquid/typeorm-store";
-import { CHAIN_NODE, FACTORY_ADDRESS, FOUR_POOL, FOUR_POOL_LP } from "./consts";
+import { CHAIN_NODE, FACTORY_ADDRESS, FOUR_POOL, FOUR_POOL_LP, FARMING_ADDRESS } from "./consts";
 import * as factory from './abis/factory'
 import * as pair from './abis/pair'
 import * as erc20 from './abis/ERC20'
+import * as farming from './abis/farming'
 import { handleNewPair } from "./mappings/factory";
 import { Pair } from "./model";
 import { handleBurn, handleMint, handleSwap, handleSync, handleTransfer } from "./mappings/pair";
@@ -20,6 +21,7 @@ import {
   handleStableSwapTransfer,
   handleStopRampA
 } from "./mappings/stableSwap";
+import { handleFarmingClaim, handleFarmingPoolAdd, handleFarmingRedeem, handleFarmingStake } from "./mappings/farming";
 
 const database = new TypeormDatabase()
 const processor = new SubstrateBatchProcessor()
@@ -62,6 +64,20 @@ const processor = new SubstrateBatchProcessor()
     filter: [
       [
         erc20.events['Transfer(address,address,uint256)'].topic,
+      ],
+    ],
+    range: { from: 1837375 }
+  })
+
+  .addEvmLog(FARMING_ADDRESS, {
+    filter: [
+      [
+        farming.events["Stake(address,uint256,uint256)"].topic,
+        farming.events["Redeem(address,uint256,uint256)"].topic,
+        farming.events["Claim(address,uint256,address[],uint256[])"].topic,
+        farming.events["WithdrawRewards(uint256,address[],uint256[])"].topic,
+        farming.events["EmergencyWithdraw(address,uint256,uint256)"].topic,
+        farming.events["PoolAdded(address)"].topic,
       ],
     ],
     range: { from: 1837375 }
@@ -142,6 +158,24 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
       switch (evmLogArgs.topics[0]) {
         case erc20.events['Transfer(address,address,uint256)'].topic:
           await handleStableSwapTransfer(ctx)
+          break
+        default:
+          break
+      }
+      break
+    case FARMING_ADDRESS:
+      switch (evmLogArgs.topics[0]) {
+        case farming.events["PoolAdded(address)"].topic:
+          await handleFarmingPoolAdd(ctx)
+          break
+        case farming.events["Stake(address,uint256,uint256)"].topic:
+          await handleFarmingStake(ctx)
+          break
+        case farming.events["Claim(address,uint256,address[],uint256[])"].topic:
+          await handleFarmingClaim(ctx)
+          break
+        case farming.events["Redeem(address,uint256,uint256)"].topic:
+          await handleFarmingRedeem(ctx)
           break
         default:
           break
