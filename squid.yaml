@@ -1,0 +1,14 @@
+manifestVersion: subsquid.io/v0.1
+name: zenlink-moonriver-squid
+version: 4
+description: |-
+  Zenlink Moonriver Squid
+build:
+
+deploy:
+  addons:
+    postgres:
+  processor:
+    cmd: [ "node", "lib/processor" ]
+  api:
+    cmd: [ "npx", "squid-graphql-server"]

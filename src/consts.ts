@@ -10,6 +10,8 @@ export const FOUR_POOL = '0x7BDE79AD4ae9023AC771F435A1DC6efdF3F434D1'.toLowerCas
 export const FOUR_POOL_LP = '0x569b9459db9bcd5964f0c9bdbaa2416722a4bd1a'.toLowerCase()
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 
+export const FARMING_ADDRESS = '0xf4ec122d32f2117674ce127b72c40506c52a72f8'.toLowerCase()
+
 export const ZERO_BI = 0n
 export const ONE_BI = 1n
 export const ZERO_BD = BigDecimal(0)
