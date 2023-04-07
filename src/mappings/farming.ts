@@ -241,7 +241,14 @@ export async function updateFarmingPoolInfo(ctx: EvmLogHandlerContext<Store>,
     } else {
       // single token
 
-      const token = await getOrCreateToken(ctx, stakeToken)
+      let token
+      try {
+         token = await getOrCreateToken(ctx, stakeToken)
+         if (token.symbol === 'ZLK-LP') return
+      } catch (error) {
+        return
+      }
+
       bundle = (await ctx.store.get(Bundle, '1'))
 
       rewardUSDPerDay = rewardEthPerDay * Number(bundle?.ethPrice ?? 0)
