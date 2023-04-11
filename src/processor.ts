@@ -29,7 +29,7 @@ const processor = new SubstrateBatchProcessor()
   .setBlockRange({ from: 1837375 })
   .setDataSource({
     chain: CHAIN_NODE,
-    archive: lookupArchive('moonriver', { release: "FireSquid" })
+    archive: lookupArchive('moonriver', { type: "Substrate" })
   })
   .addEvmLog(FACTORY_ADDRESS, {
     filter: [factory.events['PairCreated(address,address,address,uint256)'].topic],
