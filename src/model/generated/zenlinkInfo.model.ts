@@ -4,36 +4,36 @@ import {StableSwapInfo} from "./stableSwapInfo.model"
 
 @Entity_()
 export class ZenlinkInfo {
-  constructor(props?: Partial<ZenlinkInfo>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<ZenlinkInfo>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Column_("timestamp with time zone", {nullable: false})
-  updatedDate!: Date
+    @Column_("timestamp with time zone", {nullable: false})
+    updatedDate!: Date
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  totalVolumeUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    totalVolumeUSD!: string
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  totalTvlUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    totalTvlUSD!: string
 
-  @Column_("int4", {nullable: false})
-  txCount!: number
+    @Column_("int4", {nullable: false})
+    txCount!: number
 
-  @Index_()
-  @ManyToOne_(() => Factory, {nullable: true})
-  factory!: Factory
+    @Index_()
+    @ManyToOne_(() => Factory, {nullable: true})
+    factory!: Factory
 
-  @Index_()
-  @ManyToOne_(() => StableSwapInfo, {nullable: true})
-  stableSwapInfo!: StableSwapInfo
+    @Index_()
+    @ManyToOne_(() => StableSwapInfo, {nullable: true})
+    stableSwapInfo!: StableSwapInfo
 }

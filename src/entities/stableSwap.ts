@@ -1,9 +1,8 @@
-import { EvmLogHandlerContext } from "@subsquid/substrate-processor";
-import { Store } from "@subsquid/typeorm-store";
 import { StableSwap } from "../model";
 import * as StableSwapContract from "../abis/StableSwap"
 import { ADDRESS_ZERO, ZERO_BD, ZERO_BI } from "../consts";
 import { getStableSwapInfo } from "./utils";
+import { Context, Log } from "../processor";
 
 interface SwapInfo {
   baseSwapAddress: string
@@ -19,12 +18,13 @@ interface SwapInfo {
 }
 
 export async function getOrCreateStableSwap(
-  ctx: EvmLogHandlerContext<Store>, 
+  ctx: Context,
+  log: Log,
   address: string
 ): Promise<StableSwap> {
   let stableSwap = await ctx.store.get(StableSwap, address)
   if (!stableSwap) {
-    const info = await getSwapInfo(ctx, address)
+    const info = await getSwapInfo(ctx, log, address)
     const stableSwapInfo = await getStableSwapInfo(ctx)
     stableSwap = new StableSwap({
       id: address,
@@ -34,7 +34,7 @@ export async function getOrCreateStableSwap(
       tokens: info.tokens,
       baseTokens: info.tokens,
       allTokens: info.tokens,
-      balances: info.balances,
+      balances: info.balances.map(b => b.toString()),
       lpToken: info.lpToken,
       lpTotalSupply: ZERO_BI.toString(),
       a: info.a,
@@ -45,7 +45,7 @@ export async function getOrCreateStableSwap(
       volumeUSD: ZERO_BD.toString(),
       stableSwapInfo
     })
-    
+
     stableSwapInfo.poolCount += 1
     await ctx.store.save(stableSwap)
     await ctx.store.save(stableSwapInfo)
@@ -54,10 +54,11 @@ export async function getOrCreateStableSwap(
 }
 
 export async function getSwapInfo(
-  ctx: EvmLogHandlerContext<Store>, 
+  ctx: Context,
+  log: Log,
   address: string
 ): Promise<SwapInfo> {
-  const swapContract = new StableSwapContract.Contract(ctx, address)
+  const swapContract = new StableSwapContract.Contract({ ...ctx, block: log.block }, address)
 
   const tokens: string[] = []
   const balances: bigint[] = []
@@ -67,7 +68,7 @@ export async function getSwapInfo(
   while (true) {
     try {
       const token = (await swapContract.getToken(i)).toLowerCase()
-      const balance = (await swapContract.getTokenBalance(i)).toBigInt()
+      const balance = await swapContract.getTokenBalance(i)
 
       if (token !== ADDRESS_ZERO) {
         tokens.push(token)
@@ -89,24 +90,25 @@ export async function getSwapInfo(
     baseTokens: tokens,
     allTokens: tokens,
     balances,
-    a: (await swapContract.getA()).toBigInt(),
-    swapFee: swapStorage[1].toBigInt(),
-    adminFee: swapStorage[2].toBigInt(),
-    virtualPrice: (await swapContract.getVirtualPrice()).toBigInt(),
+    a: await swapContract.getA(),
+    swapFee: swapStorage[1],
+    adminFee: swapStorage[2],
+    virtualPrice: await swapContract.getVirtualPrice(),
     lpToken: swapStorage[0].toLowerCase(),
   }
 }
 
 export async function getBalancesSwap(
-  ctx: EvmLogHandlerContext<Store>,
+  ctx: Context,
+  log: Log,
   swap: string,
   N_COINS: number
 ): Promise<bigint[]> {
-  const swapContract = new StableSwapContract.Contract(ctx, swap)
+  const swapContract = new StableSwapContract.Contract({ ...ctx, block: log.block }, swap)
   const balances: bigint[] = new Array(N_COINS)
 
   for (let i = 0; i < N_COINS; ++i) {
-    balances[i] = (await swapContract.getTokenBalance(i)).toBigInt()
+    balances[i] = await swapContract.getTokenBalance(i)
   }
 
   return balances

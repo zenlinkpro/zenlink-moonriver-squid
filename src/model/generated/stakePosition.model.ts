@@ -5,21 +5,21 @@ import {Farm} from "./farm.model"
 
 @Entity_()
 export class StakePosition {
-  constructor(props?: Partial<StakePosition>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<StakePosition>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => User, {nullable: true})
-  user!: User
+    @Index_()
+    @ManyToOne_(() => User, {nullable: true})
+    user!: User
 
-  @Index_()
-  @ManyToOne_(() => Farm, {nullable: true})
-  farm!: Farm
+    @Index_()
+    @ManyToOne_(() => Farm, {nullable: true})
+    farm!: Farm
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  liquidityStakedBalance!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    liquidityStakedBalance!: bigint
 }

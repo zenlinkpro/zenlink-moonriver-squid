@@ -3,31 +3,31 @@ import {StableSwap} from "./stableSwap.model"
 
 @Entity_()
 export class StableSwapInfo {
-  constructor(props?: Partial<StableSwapInfo>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<StableSwapInfo>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Column_("int4", {nullable: false})
-  poolCount!: number
+    @Column_("int4", {nullable: false})
+    poolCount!: number
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  totalVolumeUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    totalVolumeUSD!: string
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  totalTvlUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    totalTvlUSD!: string
 
-  @Column_("int4", {nullable: false})
-  txCount!: number
+    @Column_("int4", {nullable: false})
+    txCount!: number
 
-  @OneToMany_(() => StableSwap, e => e.stableSwapInfo)
-  swaps!: StableSwap[]
+    @OneToMany_(() => StableSwap, e => e.stableSwapInfo)
+    swaps!: StableSwap[]
 }

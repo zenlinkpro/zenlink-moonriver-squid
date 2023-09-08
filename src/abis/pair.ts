@@ -1,1010 +1,187 @@
-import * as ethers from "ethers";
-import assert from "assert";
+import * as ethers from 'ethers'
+import {LogEvent, Func, ContractBase} from './abi.support'
+import {ABI_JSON} from './pair.abi'
 
-export const abi = new ethers.utils.Interface(getJsonAbi());
-
-export type Approval0Event = ([owner: string, spender: string, value: ethers.BigNumber] & {owner: string, spender: string, value: ethers.BigNumber})
-
-export type Burn0Event = ([sender: string, amount0: ethers.BigNumber, amount1: ethers.BigNumber, to: string] & {sender: string, amount0: ethers.BigNumber, amount1: ethers.BigNumber, to: string})
-
-export type Mint0Event = ([sender: string, amount0: ethers.BigNumber, amount1: ethers.BigNumber] & {sender: string, amount0: ethers.BigNumber, amount1: ethers.BigNumber})
-
-export type Swap0Event = ([sender: string, amount0In: ethers.BigNumber, amount1In: ethers.BigNumber, amount0Out: ethers.BigNumber, amount1Out: ethers.BigNumber, to: string] & {sender: string, amount0In: ethers.BigNumber, amount1In: ethers.BigNumber, amount0Out: ethers.BigNumber, amount1Out: ethers.BigNumber, to: string})
-
-export type Sync0Event = ([reserve0: ethers.BigNumber, reserve1: ethers.BigNumber] & {reserve0: ethers.BigNumber, reserve1: ethers.BigNumber})
-
-export type Transfer0Event = ([from: string, to: string, value: ethers.BigNumber] & {from: string, to: string, value: ethers.BigNumber})
-
-export interface EvmLog {
-  data: string;
-  topics: string[];
-}
-
-function decodeEvent(signature: string, data: EvmLog): any {
-  return abi.decodeEventLog(
-    abi.getEvent(signature),
-    data.data || "",
-    data.topics
-  );
-}
+export const abi = new ethers.Interface(ABI_JSON);
 
 export const events = {
-  "Approval(address,address,uint256)": {
-    topic: abi.getEventTopic("Approval(address,address,uint256)"),
-    decode(data: EvmLog): Approval0Event {
-      return decodeEvent("Approval(address,address,uint256)", data)
-    }
-  }
-  ,
-  "Burn(address,uint256,uint256,address)": {
-    topic: abi.getEventTopic("Burn(address,uint256,uint256,address)"),
-    decode(data: EvmLog): Burn0Event {
-      return decodeEvent("Burn(address,uint256,uint256,address)", data)
-    }
-  }
-  ,
-  "Mint(address,uint256,uint256)": {
-    topic: abi.getEventTopic("Mint(address,uint256,uint256)"),
-    decode(data: EvmLog): Mint0Event {
-      return decodeEvent("Mint(address,uint256,uint256)", data)
-    }
-  }
-  ,
-  "Swap(address,uint256,uint256,uint256,uint256,address)": {
-    topic: abi.getEventTopic("Swap(address,uint256,uint256,uint256,uint256,address)"),
-    decode(data: EvmLog): Swap0Event {
-      return decodeEvent("Swap(address,uint256,uint256,uint256,uint256,address)", data)
-    }
-  }
-  ,
-  "Sync(uint112,uint112)": {
-    topic: abi.getEventTopic("Sync(uint112,uint112)"),
-    decode(data: EvmLog): Sync0Event {
-      return decodeEvent("Sync(uint112,uint112)", data)
-    }
-  }
-  ,
-  "Transfer(address,address,uint256)": {
-    topic: abi.getEventTopic("Transfer(address,address,uint256)"),
-    decode(data: EvmLog): Transfer0Event {
-      return decodeEvent("Transfer(address,address,uint256)", data)
-    }
-  }
-  ,
-}
-
-export type Approve0Function = ([spender: string, amount: ethers.BigNumber] & {spender: string, amount: ethers.BigNumber})
-
-export type Burn0Function = ([to: string] & {to: string})
-
-export type DecreaseAllowance0Function = ([spender: string, subtractedValue: ethers.BigNumber] & {spender: string, subtractedValue: ethers.BigNumber})
-
-export type IncreaseAllowance0Function = ([spender: string, addedValue: ethers.BigNumber] & {spender: string, addedValue: ethers.BigNumber})
-
-export type Initialize0Function = ([_token0: string, _token1: string] & {_token0: string, _token1: string})
-
-export type Mint0Function = ([to: string] & {to: string})
-
-export type Permit0Function = ([owner: string, spender: string, value: ethers.BigNumber, deadline: ethers.BigNumber, v: number, r: string, s: string] & {owner: string, spender: string, value: ethers.BigNumber, deadline: ethers.BigNumber, v: number, r: string, s: string})
-
-export type Skim0Function = ([to: string] & {to: string})
-
-export type Swap0Function = ([amount0Out: ethers.BigNumber, amount1Out: ethers.BigNumber, to: string, data: string] & {amount0Out: ethers.BigNumber, amount1Out: ethers.BigNumber, to: string, data: string})
-
-export type Transfer0Function = ([to: string, amount: ethers.BigNumber] & {to: string, amount: ethers.BigNumber})
-
-export type TransferFrom0Function = ([from: string, to: string, amount: ethers.BigNumber] & {from: string, to: string, amount: ethers.BigNumber})
-
-
-function decodeFunction(data: string): any {
-  return abi.decodeFunctionData(data.slice(0, 10), data)
+    Approval: new LogEvent<([owner: string, spender: string, value: bigint] & {owner: string, spender: string, value: bigint})>(
+        abi, '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925'
+    ),
+    Burn: new LogEvent<([sender: string, amount0: bigint, amount1: bigint, to: string] & {sender: string, amount0: bigint, amount1: bigint, to: string})>(
+        abi, '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496'
+    ),
+    Mint: new LogEvent<([sender: string, amount0: bigint, amount1: bigint] & {sender: string, amount0: bigint, amount1: bigint})>(
+        abi, '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f'
+    ),
+    Swap: new LogEvent<([sender: string, amount0In: bigint, amount1In: bigint, amount0Out: bigint, amount1Out: bigint, to: string] & {sender: string, amount0In: bigint, amount1In: bigint, amount0Out: bigint, amount1Out: bigint, to: string})>(
+        abi, '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822'
+    ),
+    Sync: new LogEvent<([reserve0: bigint, reserve1: bigint] & {reserve0: bigint, reserve1: bigint})>(
+        abi, '0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1'
+    ),
+    Transfer: new LogEvent<([from: string, to: string, value: bigint] & {from: string, to: string, value: bigint})>(
+        abi, '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+    ),
 }
 
 export const functions = {
-  "approve(address,uint256)": {
-    sighash: abi.getSighash("approve(address,uint256)"),
-    decode(input: string): Approve0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "burn(address)": {
-    sighash: abi.getSighash("burn(address)"),
-    decode(input: string): Burn0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "decreaseAllowance(address,uint256)": {
-    sighash: abi.getSighash("decreaseAllowance(address,uint256)"),
-    decode(input: string): DecreaseAllowance0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "increaseAllowance(address,uint256)": {
-    sighash: abi.getSighash("increaseAllowance(address,uint256)"),
-    decode(input: string): IncreaseAllowance0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "initialize(address,address)": {
-    sighash: abi.getSighash("initialize(address,address)"),
-    decode(input: string): Initialize0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "mint(address)": {
-    sighash: abi.getSighash("mint(address)"),
-    decode(input: string): Mint0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": {
-    sighash: abi.getSighash("permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"),
-    decode(input: string): Permit0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "skim(address)": {
-    sighash: abi.getSighash("skim(address)"),
-    decode(input: string): Skim0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "swap(uint256,uint256,address,bytes)": {
-    sighash: abi.getSighash("swap(uint256,uint256,address,bytes)"),
-    decode(input: string): Swap0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "sync()": {
-    sighash: abi.getSighash("sync()"),
-  }
-  ,
-  "transfer(address,uint256)": {
-    sighash: abi.getSighash("transfer(address,uint256)"),
-    decode(input: string): Transfer0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "transferFrom(address,address,uint256)": {
-    sighash: abi.getSighash("transferFrom(address,address,uint256)"),
-    decode(input: string): TransferFrom0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
+    DOMAIN_SEPARATOR: new Func<[], {}, string>(
+        abi, '0x3644e515'
+    ),
+    MINIMUM_LIQUIDITY: new Func<[], {}, bigint>(
+        abi, '0xba9a7a56'
+    ),
+    PERMIT_TYPEHASH: new Func<[], {}, string>(
+        abi, '0x30adf81f'
+    ),
+    allowance: new Func<[owner: string, spender: string], {owner: string, spender: string}, bigint>(
+        abi, '0xdd62ed3e'
+    ),
+    approve: new Func<[spender: string, amount: bigint], {spender: string, amount: bigint}, boolean>(
+        abi, '0x095ea7b3'
+    ),
+    balanceOf: new Func<[account: string], {account: string}, bigint>(
+        abi, '0x70a08231'
+    ),
+    burn: new Func<[to: string], {to: string}, ([amount0: bigint, amount1: bigint] & {amount0: bigint, amount1: bigint})>(
+        abi, '0x89afcb44'
+    ),
+    decimals: new Func<[], {}, number>(
+        abi, '0x313ce567'
+    ),
+    decreaseAllowance: new Func<[spender: string, subtractedValue: bigint], {spender: string, subtractedValue: bigint}, boolean>(
+        abi, '0xa457c2d7'
+    ),
+    factory: new Func<[], {}, string>(
+        abi, '0xc45a0155'
+    ),
+    getReserves: new Func<[], {}, ([_reserve0: bigint, _reserve1: bigint, _blockTimestampLast: number] & {_reserve0: bigint, _reserve1: bigint, _blockTimestampLast: number})>(
+        abi, '0x0902f1ac'
+    ),
+    increaseAllowance: new Func<[spender: string, addedValue: bigint], {spender: string, addedValue: bigint}, boolean>(
+        abi, '0x39509351'
+    ),
+    initialize: new Func<[_token0: string, _token1: string], {_token0: string, _token1: string}, []>(
+        abi, '0x485cc955'
+    ),
+    kLast: new Func<[], {}, bigint>(
+        abi, '0x7464fc3d'
+    ),
+    mint: new Func<[to: string], {to: string}, bigint>(
+        abi, '0x6a627842'
+    ),
+    name: new Func<[], {}, string>(
+        abi, '0x06fdde03'
+    ),
+    nonces: new Func<[_: string], {}, bigint>(
+        abi, '0x7ecebe00'
+    ),
+    permit: new Func<[owner: string, spender: string, value: bigint, deadline: bigint, v: number, r: string, s: string], {owner: string, spender: string, value: bigint, deadline: bigint, v: number, r: string, s: string}, []>(
+        abi, '0xd505accf'
+    ),
+    price0CumulativeLast: new Func<[], {}, bigint>(
+        abi, '0x5909c0d5'
+    ),
+    price1CumulativeLast: new Func<[], {}, bigint>(
+        abi, '0x5a3d5493'
+    ),
+    skim: new Func<[to: string], {to: string}, []>(
+        abi, '0xbc25cf77'
+    ),
+    swap: new Func<[amount0Out: bigint, amount1Out: bigint, to: string, data: string], {amount0Out: bigint, amount1Out: bigint, to: string, data: string}, []>(
+        abi, '0x022c0d9f'
+    ),
+    symbol: new Func<[], {}, string>(
+        abi, '0x95d89b41'
+    ),
+    sync: new Func<[], {}, []>(
+        abi, '0xfff6cae9'
+    ),
+    token0: new Func<[], {}, string>(
+        abi, '0x0dfe1681'
+    ),
+    token1: new Func<[], {}, string>(
+        abi, '0xd21220a7'
+    ),
+    totalSupply: new Func<[], {}, bigint>(
+        abi, '0x18160ddd'
+    ),
+    transfer: new Func<[to: string, amount: bigint], {to: string, amount: bigint}, boolean>(
+        abi, '0xa9059cbb'
+    ),
+    transferFrom: new Func<[from: string, to: string, amount: bigint], {from: string, to: string, amount: bigint}, boolean>(
+        abi, '0x23b872dd'
+    ),
 }
 
-interface ChainContext  {
-  _chain: Chain
-}
+export class Contract extends ContractBase {
 
-interface BlockContext  {
-  _chain: Chain
-  block: Block
-}
-
-interface Block  {
-  height: number
-}
-
-interface Chain  {
-  client:  {
-    call: <T=any>(method: string, params?: unknown[]) => Promise<T>
-  }
-}
-
-export class Contract  {
-  private readonly _chain: Chain
-  private readonly blockHeight: number
-  readonly address: string
-
-  constructor(ctx: BlockContext, address: string)
-  constructor(ctx: ChainContext, block: Block, address: string)
-  constructor(ctx: BlockContext, blockOrAddress: Block | string, address?: string) {
-    this._chain = ctx._chain
-    if (typeof blockOrAddress === 'string')  {
-      this.blockHeight = ctx.block.height
-      this.address = ethers.utils.getAddress(blockOrAddress)
+    DOMAIN_SEPARATOR(): Promise<string> {
+        return this.eth_call(functions.DOMAIN_SEPARATOR, [])
     }
-    else  {
-      assert(address != null)
-      this.blockHeight = blockOrAddress.height
-      this.address = ethers.utils.getAddress(address)
+
+    MINIMUM_LIQUIDITY(): Promise<bigint> {
+        return this.eth_call(functions.MINIMUM_LIQUIDITY, [])
     }
-  }
 
-  async DOMAIN_SEPARATOR(): Promise<string> {
-    return this.call("DOMAIN_SEPARATOR", [])
-  }
-
-  async MINIMUM_LIQUIDITY(): Promise<ethers.BigNumber> {
-    return this.call("MINIMUM_LIQUIDITY", [])
-  }
-
-  async PERMIT_TYPEHASH(): Promise<string> {
-    return this.call("PERMIT_TYPEHASH", [])
-  }
-
-  async allowance(owner: string, spender: string): Promise<ethers.BigNumber> {
-    return this.call("allowance", [owner, spender])
-  }
-
-  async balanceOf(account: string): Promise<ethers.BigNumber> {
-    return this.call("balanceOf", [account])
-  }
-
-  async decimals(): Promise<number> {
-    return this.call("decimals", [])
-  }
-
-  async factory(): Promise<string> {
-    return this.call("factory", [])
-  }
-
-  async getReserves(): Promise<([_reserve0: ethers.BigNumber, _reserve1: ethers.BigNumber, _blockTimestampLast: number] & {_reserve0: ethers.BigNumber, _reserve1: ethers.BigNumber, _blockTimestampLast: number})> {
-    return this.call("getReserves", [])
-  }
-
-  async kLast(): Promise<ethers.BigNumber> {
-    return this.call("kLast", [])
-  }
-
-  async name(): Promise<string> {
-    return this.call("name", [])
-  }
-
-  async nonces(arg0: string): Promise<ethers.BigNumber> {
-    return this.call("nonces", [arg0])
-  }
-
-  async price0CumulativeLast(): Promise<ethers.BigNumber> {
-    return this.call("price0CumulativeLast", [])
-  }
-
-  async price1CumulativeLast(): Promise<ethers.BigNumber> {
-    return this.call("price1CumulativeLast", [])
-  }
-
-  async symbol(): Promise<string> {
-    return this.call("symbol", [])
-  }
-
-  async token0(): Promise<string> {
-    return this.call("token0", [])
-  }
-
-  async token1(): Promise<string> {
-    return this.call("token1", [])
-  }
-
-  async totalSupply(): Promise<ethers.BigNumber> {
-    return this.call("totalSupply", [])
-  }
-
-  private async call(name: string, args: any[]) : Promise<any> {
-    const fragment = abi.getFunction(name)
-    const data = abi.encodeFunctionData(fragment, args)
-    const result = await this._chain.client.call('eth_call', [{to: this.address, data}, this.blockHeight])
-    const decoded = abi.decodeFunctionResult(fragment, result)
-    return decoded.length > 1 ? decoded : decoded[0]
-  }
-}
-
-function getJsonAbi(): any {
-  return [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Approval",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount0",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount1",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "Burn",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount0",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount1",
-          "type": "uint256"
-        }
-      ],
-      "name": "Mint",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount0In",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount1In",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount0Out",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount1Out",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "Swap",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint112",
-          "name": "reserve0",
-          "type": "uint112"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint112",
-          "name": "reserve1",
-          "type": "uint112"
-        }
-      ],
-      "name": "Sync",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Transfer",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "DOMAIN_SEPARATOR",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MINIMUM_LIQUIDITY",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "PERMIT_TYPEHASH",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        }
-      ],
-      "name": "allowance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "approve",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "burn",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount0",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount1",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "decimals",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "subtractedValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "decreaseAllowance",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "factory",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getReserves",
-      "outputs": [
-        {
-          "internalType": "uint112",
-          "name": "_reserve0",
-          "type": "uint112"
-        },
-        {
-          "internalType": "uint112",
-          "name": "_reserve1",
-          "type": "uint112"
-        },
-        {
-          "internalType": "uint32",
-          "name": "_blockTimestampLast",
-          "type": "uint32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "addedValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "increaseAllowance",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_token0",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_token1",
-          "type": "address"
-        }
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "kLast",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "mint",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "liquidity",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "nonces",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint8",
-          "name": "v",
-          "type": "uint8"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "r",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "s",
-          "type": "bytes32"
-        }
-      ],
-      "name": "permit",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "price0CumulativeLast",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "price1CumulativeLast",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "skim",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount0Out",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount1Out",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "data",
-          "type": "bytes"
-        }
-      ],
-      "name": "swap",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "symbol",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "sync",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "token0",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "token1",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalSupply",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "transfer",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferFrom",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
+    PERMIT_TYPEHASH(): Promise<string> {
+        return this.eth_call(functions.PERMIT_TYPEHASH, [])
     }
-  ]
+
+    allowance(owner: string, spender: string): Promise<bigint> {
+        return this.eth_call(functions.allowance, [owner, spender])
+    }
+
+    balanceOf(account: string): Promise<bigint> {
+        return this.eth_call(functions.balanceOf, [account])
+    }
+
+    decimals(): Promise<number> {
+        return this.eth_call(functions.decimals, [])
+    }
+
+    factory(): Promise<string> {
+        return this.eth_call(functions.factory, [])
+    }
+
+    getReserves(): Promise<([_reserve0: bigint, _reserve1: bigint, _blockTimestampLast: number] & {_reserve0: bigint, _reserve1: bigint, _blockTimestampLast: number})> {
+        return this.eth_call(functions.getReserves, [])
+    }
+
+    kLast(): Promise<bigint> {
+        return this.eth_call(functions.kLast, [])
+    }
+
+    name(): Promise<string> {
+        return this.eth_call(functions.name, [])
+    }
+
+    nonces(arg0: string): Promise<bigint> {
+        return this.eth_call(functions.nonces, [arg0])
+    }
+
+    price0CumulativeLast(): Promise<bigint> {
+        return this.eth_call(functions.price0CumulativeLast, [])
+    }
+
+    price1CumulativeLast(): Promise<bigint> {
+        return this.eth_call(functions.price1CumulativeLast, [])
+    }
+
+    symbol(): Promise<string> {
+        return this.eth_call(functions.symbol, [])
+    }
+
+    token0(): Promise<string> {
+        return this.eth_call(functions.token0, [])
+    }
+
+    token1(): Promise<string> {
+        return this.eth_call(functions.token1, [])
+    }
+
+    totalSupply(): Promise<bigint> {
+        return this.eth_call(functions.totalSupply, [])
+    }
 }

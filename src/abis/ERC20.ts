@@ -1,370 +1,71 @@
-import * as ethers from "ethers";
-import assert from "assert";
+import * as ethers from 'ethers'
+import {LogEvent, Func, ContractBase} from './abi.support'
+import {ABI_JSON} from './ERC20.abi'
 
-export const abi = new ethers.utils.Interface(getJsonAbi());
-
-export type Approval0Event = ([owner: string, spender: string, value: ethers.BigNumber] & {owner: string, spender: string, value: ethers.BigNumber})
-
-export type Transfer0Event = ([from: string, to: string, value: ethers.BigNumber] & {from: string, to: string, value: ethers.BigNumber})
-
-export interface EvmLog {
-  data: string;
-  topics: string[];
-}
-
-function decodeEvent(signature: string, data: EvmLog): any {
-  return abi.decodeEventLog(
-    abi.getEvent(signature),
-    data.data || "",
-    data.topics
-  );
-}
+export const abi = new ethers.Interface(ABI_JSON);
 
 export const events = {
-  "Approval(address,address,uint256)": {
-    topic: abi.getEventTopic("Approval(address,address,uint256)"),
-    decode(data: EvmLog): Approval0Event {
-      return decodeEvent("Approval(address,address,uint256)", data)
-    }
-  }
-  ,
-  "Transfer(address,address,uint256)": {
-    topic: abi.getEventTopic("Transfer(address,address,uint256)"),
-    decode(data: EvmLog): Transfer0Event {
-      return decodeEvent("Transfer(address,address,uint256)", data)
-    }
-  }
-  ,
-}
-
-export type Approve0Function = ([_spender: string, _value: ethers.BigNumber] & {_spender: string, _value: ethers.BigNumber})
-
-export type TransferFrom0Function = ([_from: string, _to: string, _value: ethers.BigNumber] & {_from: string, _to: string, _value: ethers.BigNumber})
-
-export type Transfer0Function = ([_to: string, _value: ethers.BigNumber] & {_to: string, _value: ethers.BigNumber})
-
-
-function decodeFunction(data: string): any {
-  return abi.decodeFunctionData(data.slice(0, 10), data)
+    Approval: new LogEvent<([owner: string, spender: string, value: bigint] & {owner: string, spender: string, value: bigint})>(
+        abi, '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925'
+    ),
+    Transfer: new LogEvent<([from: string, to: string, value: bigint] & {from: string, to: string, value: bigint})>(
+        abi, '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+    ),
 }
 
 export const functions = {
-  "approve(address,uint256)": {
-    sighash: abi.getSighash("approve(address,uint256)"),
-    decode(input: string): Approve0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "transferFrom(address,address,uint256)": {
-    sighash: abi.getSighash("transferFrom(address,address,uint256)"),
-    decode(input: string): TransferFrom0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "transfer(address,uint256)": {
-    sighash: abi.getSighash("transfer(address,uint256)"),
-    decode(input: string): Transfer0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
+    name: new Func<[], {}, string>(
+        abi, '0x06fdde03'
+    ),
+    approve: new Func<[_spender: string, _value: bigint], {_spender: string, _value: bigint}, boolean>(
+        abi, '0x095ea7b3'
+    ),
+    totalSupply: new Func<[], {}, bigint>(
+        abi, '0x18160ddd'
+    ),
+    transferFrom: new Func<[_from: string, _to: string, _value: bigint], {_from: string, _to: string, _value: bigint}, boolean>(
+        abi, '0x23b872dd'
+    ),
+    decimals: new Func<[], {}, number>(
+        abi, '0x313ce567'
+    ),
+    balanceOf: new Func<[_owner: string], {_owner: string}, bigint>(
+        abi, '0x70a08231'
+    ),
+    symbol: new Func<[], {}, string>(
+        abi, '0x95d89b41'
+    ),
+    transfer: new Func<[_to: string, _value: bigint], {_to: string, _value: bigint}, boolean>(
+        abi, '0xa9059cbb'
+    ),
+    allowance: new Func<[_owner: string, _spender: string], {_owner: string, _spender: string}, bigint>(
+        abi, '0xdd62ed3e'
+    ),
 }
 
-interface ChainContext  {
-  _chain: Chain
-}
+export class Contract extends ContractBase {
 
-interface BlockContext  {
-  _chain: Chain
-  block: Block
-}
-
-interface Block  {
-  height: number
-}
-
-interface Chain  {
-  client:  {
-    call: <T=any>(method: string, params?: unknown[]) => Promise<T>
-  }
-}
-
-export class Contract  {
-  private readonly _chain: Chain
-  private readonly blockHeight: number
-  readonly address: string
-
-  constructor(ctx: BlockContext, address: string)
-  constructor(ctx: ChainContext, block: Block, address: string)
-  constructor(ctx: BlockContext, blockOrAddress: Block | string, address?: string) {
-    this._chain = ctx._chain
-    if (typeof blockOrAddress === 'string')  {
-      this.blockHeight = ctx.block.height
-      this.address = ethers.utils.getAddress(blockOrAddress)
+    name(): Promise<string> {
+        return this.eth_call(functions.name, [])
     }
-    else  {
-      assert(address != null)
-      this.blockHeight = blockOrAddress.height
-      this.address = ethers.utils.getAddress(address)
+
+    totalSupply(): Promise<bigint> {
+        return this.eth_call(functions.totalSupply, [])
     }
-  }
 
-  async name(): Promise<string> {
-    return this.call("name", [])
-  }
-
-  async totalSupply(): Promise<ethers.BigNumber> {
-    return this.call("totalSupply", [])
-  }
-
-  async decimals(): Promise<number> {
-    return this.call("decimals", [])
-  }
-
-  async balanceOf(_owner: string): Promise<ethers.BigNumber> {
-    return this.call("balanceOf", [_owner])
-  }
-
-  async symbol(): Promise<string> {
-    return this.call("symbol", [])
-  }
-
-  async allowance(_owner: string, _spender: string): Promise<ethers.BigNumber> {
-    return this.call("allowance", [_owner, _spender])
-  }
-
-  private async call(name: string, args: any[]) : Promise<any> {
-    const fragment = abi.getFunction(name)
-    const data = abi.encodeFunctionData(fragment, args)
-    const result = await this._chain.client.call('eth_call', [{to: this.address, data}, this.blockHeight])
-    const decoded = abi.decodeFunctionResult(fragment, result)
-    return decoded.length > 1 ? decoded : decoded[0]
-  }
-}
-
-function getJsonAbi(): any {
-  return [
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_spender",
-          "type": "address"
-        },
-        {
-          "name": "_value",
-          "type": "uint256"
-        }
-      ],
-      "name": "approve",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "totalSupply",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_from",
-          "type": "address"
-        },
-        {
-          "name": "_to",
-          "type": "address"
-        },
-        {
-          "name": "_value",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferFrom",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "decimals",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_owner",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "name": "balance",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "symbol",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_to",
-          "type": "address"
-        },
-        {
-          "name": "_value",
-          "type": "uint256"
-        }
-      ],
-      "name": "transfer",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_owner",
-          "type": "address"
-        },
-        {
-          "name": "_spender",
-          "type": "address"
-        }
-      ],
-      "name": "allowance",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "fallback"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Approval",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "Transfer",
-      "type": "event"
+    decimals(): Promise<number> {
+        return this.eth_call(functions.decimals, [])
     }
-  ]
+
+    balanceOf(_owner: string): Promise<bigint> {
+        return this.eth_call(functions.balanceOf, [_owner])
+    }
+
+    symbol(): Promise<string> {
+        return this.eth_call(functions.symbol, [])
+    }
+
+    allowance(_owner: string, _spender: string): Promise<bigint> {
+        return this.eth_call(functions.allowance, [_owner, _spender])
+    }
 }

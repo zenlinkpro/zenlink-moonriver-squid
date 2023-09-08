@@ -1,8 +1,7 @@
-import { CommonHandlerContext } from '@subsquid/substrate-processor'
-import { Store } from '@subsquid/typeorm-store'
 import { Pair } from '../model'
+import { Context } from '../processor'
 
-export async function getPair(ctx: CommonHandlerContext<Store>, id: string) {
+export async function getPair(ctx: Context, id: string) {
   const item = await ctx.store.get(Pair, {
     where: { id },
     relations: { token0: true, token1: true },

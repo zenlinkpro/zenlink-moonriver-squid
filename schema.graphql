@@ -77,7 +77,7 @@ type StableSwap @entity {
   allTokens: [String!]!
 
   # token balances
-  balances: [BigInt!]!
+  balances: [String!]!
 
   # liquidity provider token
   lpToken: String!
@@ -147,23 +147,23 @@ type StableSwapStopRampAEventData {
 
 type StableSwapAddLiquidityEventData {
   provider: Bytes!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]!
+  tokenAmounts: [String!]!
+  fees: [String!]!
   invariant: BigInt
   lpTokenSupply: BigInt!
 }
 
 type StableSwapRemoveLiquidityEventData {
   provider: Bytes!
-  tokenAmounts: [BigInt!]!
-  fees: [BigInt!]
+  tokenAmounts: [String!]!
+  fees: [String!]
   lpTokenSupply: BigInt
 }
 
 type StableSwapFlashLoanEventData {
   caller: Bytes!
   receiver: Bytes!
-  amountsOut: [BigInt!]!
+  amountsOut: [String!]!
 }
 
 type StableSwapExchange @entity {

@@ -9,80 +9,80 @@ import {Farm} from "./farm.model"
 
 @Entity_()
 export class StableSwap {
-  constructor(props?: Partial<StableSwap>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<StableSwap>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Column_("text", {nullable: false})
-  address!: string
+    @Column_("text", {nullable: false})
+    address!: string
 
-  @Column_("text", {nullable: false})
-  baseSwapAddress!: string
+    @Column_("text", {nullable: false})
+    baseSwapAddress!: string
 
-  @Column_("int4", {nullable: false})
-  numTokens!: number
+    @Column_("int4", {nullable: false})
+    numTokens!: number
 
-  @Column_("text", {array: true, nullable: false})
-  tokens!: (string)[]
+    @Column_("text", {array: true, nullable: false})
+    tokens!: (string)[]
 
-  @Column_("text", {array: true, nullable: false})
-  baseTokens!: (string)[]
+    @Column_("text", {array: true, nullable: false})
+    baseTokens!: (string)[]
 
-  @Column_("text", {array: true, nullable: false})
-  allTokens!: (string)[]
+    @Column_("text", {array: true, nullable: false})
+    allTokens!: (string)[]
 
-  @Column_("numeric", {array: true, nullable: false})
-  balances!: (bigint)[]
+    @Column_("text", {array: true, nullable: false})
+    balances!: (string)[]
 
-  @Column_("text", {nullable: false})
-  lpToken!: string
+    @Column_("text", {nullable: false})
+    lpToken!: string
 
-  @Column_("text", {nullable: false})
-  lpTotalSupply!: string
+    @Column_("text", {nullable: false})
+    lpTotalSupply!: string
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  a!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    a!: bigint
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  swapFee!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    swapFee!: bigint
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  adminFee!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    adminFee!: bigint
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  virtualPrice!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    virtualPrice!: bigint
 
-  @Index_()
-  @ManyToOne_(() => StableSwapInfo, {nullable: true})
-  stableSwapInfo!: StableSwapInfo
+    @Index_()
+    @ManyToOne_(() => StableSwapInfo, {nullable: true})
+    stableSwapInfo!: StableSwapInfo
 
-  @OneToMany_(() => StableSwapEvent, e => e.stableSwap)
-  events!: StableSwapEvent[]
+    @OneToMany_(() => StableSwapEvent, e => e.stableSwap)
+    events!: StableSwapEvent[]
 
-  @OneToMany_(() => StableSwapExchange, e => e.stableSwap)
-  exchanges!: StableSwapExchange[]
+    @OneToMany_(() => StableSwapExchange, e => e.stableSwap)
+    exchanges!: StableSwapExchange[]
 
-  @OneToMany_(() => StableSwapDayData, e => e.stableSwap)
-  stableSwapDayData!: StableSwapDayData[]
+    @OneToMany_(() => StableSwapDayData, e => e.stableSwap)
+    stableSwapDayData!: StableSwapDayData[]
 
-  @OneToMany_(() => StableSwapHourData, e => e.stableSwap)
-  stableSwapHourData!: StableSwapHourData[]
+    @OneToMany_(() => StableSwapHourData, e => e.stableSwap)
+    stableSwapHourData!: StableSwapHourData[]
 
-  @OneToMany_(() => Farm, e => e.stableSwap)
-  farm!: Farm[]
+    @OneToMany_(() => Farm, e => e.stableSwap)
+    farm!: Farm[]
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  tvlUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    tvlUSD!: string
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  volumeUSD!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    volumeUSD!: string
 }

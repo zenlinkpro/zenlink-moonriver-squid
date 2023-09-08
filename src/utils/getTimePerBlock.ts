@@ -1,5 +1,4 @@
-import { EvmLogHandlerContext } from '@subsquid/substrate-processor'
-import { Store } from "@subsquid/typeorm-store";
+import { Context, Log } from "../processor";
 
 const BLOCK_RECORD = {
   pre: {
@@ -16,19 +15,19 @@ const BLOCK_RECORD = {
   }
 }
 
-export function getTimePerBlock(ctx: EvmLogHandlerContext<Store>,):number {
+export function getTimePerBlock(ctx: Context, log: Log): number {
 
-  if(BLOCK_RECORD.pre.blockHeight === 0 ){
-    BLOCK_RECORD.pre.blockHeight = ctx.block.height
-    BLOCK_RECORD.pre.timestamp = ctx.block.timestamp
+  if (BLOCK_RECORD.pre.blockHeight === 0) {
+    BLOCK_RECORD.pre.blockHeight = log.block.height
+    BLOCK_RECORD.pre.timestamp = log.block.timestamp
 
-    BLOCK_RECORD.middle.blockHeight = ctx.block.height
-    BLOCK_RECORD.middle.timestamp = ctx.block.timestamp
+    BLOCK_RECORD.middle.blockHeight = log.block.height
+    BLOCK_RECORD.middle.timestamp = log.block.timestamp
 
   }
 
-  BLOCK_RECORD.cur.blockHeight = ctx.block.height
-  BLOCK_RECORD.cur.timestamp = ctx.block.timestamp
+  BLOCK_RECORD.cur.blockHeight = log.block.height
+  BLOCK_RECORD.cur.timestamp = log.block.timestamp
 
 
   const blockDiff = BLOCK_RECORD.cur.blockHeight - BLOCK_RECORD.pre.blockHeight;
@@ -36,12 +35,12 @@ export function getTimePerBlock(ctx: EvmLogHandlerContext<Store>,):number {
   const blockMidDiff = BLOCK_RECORD.cur.blockHeight - BLOCK_RECORD.middle.blockHeight;
 
 
-  if(blockDiff > 10000 && blockMidDiff > 5000){
+  if (blockDiff > 10000 && blockMidDiff > 5000) {
     BLOCK_RECORD.pre.blockHeight = BLOCK_RECORD.middle.blockHeight
     BLOCK_RECORD.pre.timestamp = BLOCK_RECORD.middle.timestamp
 
-    BLOCK_RECORD.middle.blockHeight = ctx.block.height
-    BLOCK_RECORD.middle.timestamp = ctx.block.timestamp
+    BLOCK_RECORD.middle.blockHeight = log.block.height
+    BLOCK_RECORD.middle.timestamp = log.block.timestamp
   }
 
 
@@ -52,9 +51,9 @@ export function getTimePerBlock(ctx: EvmLogHandlerContext<Store>,):number {
 
   const averageBlock = (currentTimestamp - anchorTimestamp) / blocks
 
-  if(blocks <= 0) return 12000
+  if (blocks <= 0) return 12000
 
   return averageBlock
- 
+
 }
 

@@ -1,6 +1,5 @@
-import { CommonHandlerContext, decodeHex, EvmLogHandlerContext } from "@subsquid/substrate-processor";
-import { Store } from "@subsquid/typeorm-store";
 import { Big as BigDecimal } from 'big.js'
+import { assertNotNull, decodeHex } from "@subsquid/evm-processor";
 import { getBalancesSwap, getOrCreateStableSwap } from "../entities/stableSwap";
 import * as StableSwapContract from "../abis/StableSwap"
 import * as ERC20Contract from "../abis/ERC20"
@@ -28,9 +27,10 @@ import {
   updateStableSwapTvl,
   updateZenlinkInfo
 } from "../utils/updates";
+import { Context, Log } from "../processor";
 
 async function updateStableSwapLiquidityPosition(
-  ctx: CommonHandlerContext<Store>,
+  ctx: Context,
   stableSwap: StableSwap,
   user: User
 ): Promise<StableSwapLiquidityPosition> {
@@ -49,19 +49,17 @@ async function updateStableSwapLiquidityPosition(
   return position
 }
 
-export async function handleStableSwapTransfer(ctx: EvmLogHandlerContext<Store>) {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const event = ERC20Contract.events['Transfer(address,address,uint256)']
-    .decode(evmLogArgs)
+export async function handleStableSwapTransfer(ctx: Context, log: Log) {
+  const event = ERC20Contract.events.Transfer.decode(log)
 
   let { from, to } = event
   from = from.toLowerCase()
   to = to.toLowerCase()
 
-  const stableSwap = await ctx.store.get(StableSwap, { where: { lpToken: evmLogArgs.address } })
+  const stableSwap = await ctx.store.get(StableSwap, { where: { lpToken: log.address } })
   if (!stableSwap) return
 
-  const lpContract = new ERC20Contract.Contract(ctx, evmLogArgs.address)
+  const lpContract = new ERC20Contract.Contract({ ...ctx, block: log.block }, log.address)
 
   // mints or burns
   if (from === ADDRESS_ZERO || to === ADDRESS_ZERO) {
@@ -80,7 +78,7 @@ export async function handleStableSwapTransfer(ctx: EvmLogHandlerContext<Store>)
       await ctx.store.save(user)
     }
     const position = await updateStableSwapLiquidityPosition(ctx, stableSwap, user)
-    position.liquidityTokenBalance =(await lpContract.balanceOf(from)).toString()
+    position.liquidityTokenBalance = (await lpContract.balanceOf(from)).toString()
     await ctx.store.save(position)
   }
 
@@ -96,228 +94,221 @@ export async function handleStableSwapTransfer(ctx: EvmLogHandlerContext<Store>)
       await ctx.store.save(user)
     }
     const position = await updateStableSwapLiquidityPosition(ctx, stableSwap, user)
-    position.liquidityTokenBalance =(await lpContract.balanceOf(to)).toString()
+    position.liquidityTokenBalance = (await lpContract.balanceOf(to)).toString()
     await ctx.store.save(position)
   }
 
   await ctx.store.save(stableSwap)
 }
 
-export async function handleStableSwapNewFee(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
+export async function handleStableSwapNewFee(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
 
-  const event = StableSwapContract.events['NewFee(uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.NewFee.decode(log)
 
-  stableSwap.swapFee = event.fee.toBigInt()
-  stableSwap.adminFee = event.adminFee.toBigInt()
+  stableSwap.swapFee = event.fee
+  stableSwap.adminFee = event.adminFee
   await ctx.store.save(stableSwap)
 
-  const log = new StableSwapEvent({
-    id: `new_fee-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `new_fee-${transaction.hash}`,
     stableSwap,
     data: new StableSwapNewFeeEventData({
-      swapFee: event.fee.toBigInt(),
-      adminFee: event.adminFee.toBigInt()
+      swapFee: event.fee,
+      adminFee: event.adminFee
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleRampA(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
+export async function handleRampA(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
 
-  const event = StableSwapContract.events['RampA(uint256,uint256,uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.RampA.decode(log)
 
-  const log = new StableSwapEvent({
-    id: `ramp_A-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `ramp_A-${transaction.hash}`,
     stableSwap,
     data: new StableSwapRampAEventData({
-      oldA: event.oldA.toBigInt(),
-      newA: event.newA.toBigInt(),
-      initialTime: event.initialTime.toBigInt(),
-      futureTime: event.futureTime.toBigInt()
+      oldA: event.oldA,
+      newA: event.newA,
+      initialTime: event.initialTime,
+      futureTime: event.futureTime
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStopRampA(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
+export async function handleStopRampA(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
 
-  const event = StableSwapContract.events['StopRampA(uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.StopRampA.decode(log)
 
-  stableSwap.a = event.A.toBigInt()
+  stableSwap.a = event.A
   await ctx.store.save(stableSwap)
 
-  const log = new StableSwapEvent({
-    id: `stop_ramp_A-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `stop_ramp_A-${transaction.hash}`,
     stableSwap,
     data: new StableSwapStopRampAEventData({
-      currentA: event.A.toBigInt(),
-      time: event.timestamp.toBigInt()
+      currentA: event.A,
+      time: event.timestamp
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStableSwapAddLiquidity(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
-  const balances = await getBalancesSwap(ctx, evmLogArgs.address, stableSwap.numTokens)
-  stableSwap.balances = balances
+export async function handleStableSwapAddLiquidity(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
+  const balances = await getBalancesSwap(ctx, log, log.address, stableSwap.numTokens)
+  stableSwap.balances = balances.map(b => b.toString())
 
-  await updateStableSwapTvl(ctx, stableSwap)
-  await updateStableSwapInfo(ctx)
-  await updateStableSwapDayData(ctx, stableSwap)
-  await updateStableSwapHourData(ctx, stableSwap)
-  await updateStableDayData(ctx)
+  await updateStableSwapTvl(ctx, log, stableSwap)
+  await updateStableSwapInfo(ctx, log)
+  await updateStableSwapDayData(ctx, log, stableSwap)
+  await updateStableSwapHourData(ctx, log, stableSwap)
+  await updateStableDayData(ctx, log)
 
-  const event = StableSwapContract.events['AddLiquidity(address,uint256[],uint256[],uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.AddLiquidity.decode(log)
 
-  const log = new StableSwapEvent({
-    id: `add_liquidity-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `add_liquidity-${transaction.hash}`,
     stableSwap,
     data: new StableSwapAddLiquidityEventData({
       provider: decodeHex(event.provider),
-      tokenAmounts: event.tokenAmounts.map((a) => a.toBigInt()),
-      fees: event.fees.map((fee) => fee.toBigInt()),
-      invariant: event.invariant.toBigInt(),
-      lpTokenSupply: event.tokenSupply.toBigInt()
+      tokenAmounts: event.tokenAmounts.map(ta => ta.toString()),
+      fees: event.fees.map(fee => fee.toString()),
+      invariant: event.invariant,
+      lpTokenSupply: event.tokenSupply
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStableSwapRemoveLiquidity(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
-  const balances = await getBalancesSwap(ctx, evmLogArgs.address, stableSwap.numTokens)
-  stableSwap.balances = balances
+export async function handleStableSwapRemoveLiquidity(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
+  const balances = await getBalancesSwap(ctx, log, log.address, stableSwap.numTokens)
+  stableSwap.balances = balances.map(b => b.toString())
 
-  await updateStableSwapTvl(ctx, stableSwap)
-  await updateStableSwapInfo(ctx)
-  await updateStableSwapDayData(ctx, stableSwap)
-  await updateStableSwapHourData(ctx, stableSwap)
-  await updateStableDayData(ctx)
+  await updateStableSwapTvl(ctx, log, stableSwap)
+  await updateStableSwapInfo(ctx, log)
+  await updateStableSwapDayData(ctx, log, stableSwap)
+  await updateStableSwapHourData(ctx, log, stableSwap)
+  await updateStableDayData(ctx, log)
 
-  const event = StableSwapContract.events['RemoveLiquidity(address,uint256[],uint256[],uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.RemoveLiquidity.decode(log)
 
-  const log = new StableSwapEvent({
-    id: `remove_liquidity-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `remove_liquidity-${transaction.hash}`,
     stableSwap,
     data: new StableSwapRemoveLiquidityEventData({
       provider: decodeHex(event.provider),
-      tokenAmounts: event.tokenAmounts.map((a) => a.toBigInt()),
-      lpTokenSupply: event.tokenSupply.toBigInt()
+      tokenAmounts: event.tokenAmounts.map(ta => ta.toString()),
+      lpTokenSupply: event.tokenSupply
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStableSwapRemoveLiquidityOne(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
-  const balances = await getBalancesSwap(ctx, evmLogArgs.address, stableSwap.numTokens)
-  stableSwap.balances = balances
+export async function handleStableSwapRemoveLiquidityOne(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
+  const balances = await getBalancesSwap(ctx, log, log.address, stableSwap.numTokens)
+  stableSwap.balances = balances.map(b => b.toString())
 
-  await updateStableSwapTvl(ctx, stableSwap)
-  await updateStableSwapInfo(ctx)
-  await updateStableSwapDayData(ctx, stableSwap)
-  await updateStableSwapHourData(ctx, stableSwap)
-  await updateStableDayData(ctx)
+  await updateStableSwapTvl(ctx, log, stableSwap)
+  await updateStableSwapInfo(ctx, log)
+  await updateStableSwapDayData(ctx, log, stableSwap)
+  await updateStableSwapHourData(ctx, log, stableSwap)
+  await updateStableDayData(ctx, log)
 
-  const event = StableSwapContract.events['RemoveLiquidityOne(address,uint256,uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.RemoveLiquidityOne.decode(log)
 
   const tokenAmounts: bigint[] = []
   for (let i = 0; i < stableSwap.numTokens; i++) {
-    if (i === event.tokenIndex.toNumber()) {
-      tokenAmounts.push(event.coinAmount.toBigInt())
+    if (i === Number(event.tokenIndex)) {
+      tokenAmounts.push(event.coinAmount)
     } else {
       tokenAmounts.push(0n)
     }
   }
 
-  const log = new StableSwapEvent({
-    id: `remove_liquidity_one-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `remove_liquidity_one-${transaction.hash}`,
     stableSwap,
     data: new StableSwapRemoveLiquidityEventData({
       provider: decodeHex(event.provider),
-      tokenAmounts
+      tokenAmounts: tokenAmounts.map(ta => ta.toString())
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStableSwapRemoveLiquidityImbalance(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
-  const balances = await getBalancesSwap(ctx, evmLogArgs.address, stableSwap.numTokens)
-  stableSwap.balances = balances
+export async function handleStableSwapRemoveLiquidityImbalance(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
+  const balances = await getBalancesSwap(ctx, log, log.address, stableSwap.numTokens)
+  stableSwap.balances = balances.map(b => b.toString())
 
-  await updateStableSwapTvl(ctx, stableSwap)
-  await updateStableSwapInfo(ctx)
-  await updateStableSwapDayData(ctx, stableSwap)
-  await updateStableSwapHourData(ctx, stableSwap)
-  await updateStableDayData(ctx)
+  await updateStableSwapTvl(ctx, log, stableSwap)
+  await updateStableSwapInfo(ctx, log)
+  await updateStableSwapDayData(ctx, log, stableSwap)
+  await updateStableSwapHourData(ctx, log, stableSwap)
+  await updateStableDayData(ctx, log)
 
-  const event = StableSwapContract.events['RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.RemoveLiquidityImbalance.decode(log)
 
-  const log = new StableSwapEvent({
-    id: `remove_liquidity_imbalance-${ctx.event.evmTxHash}`,
+  const eventLog = new StableSwapEvent({
+    id: `remove_liquidity_imbalance-${transaction.hash}`,
     stableSwap,
     data: new StableSwapRemoveLiquidityEventData({
       provider: decodeHex(event.provider),
-      tokenAmounts: event.tokenAmounts.map((a) => a.toBigInt()),
-      fees: event.fees.map((fee) => fee.toBigInt()),
-      lpTokenSupply: event.tokenSupply.toBigInt()
+      tokenAmounts: event.tokenAmounts.map(ta => ta.toString()),
+      fees: event.fees.map(fee => fee.toString()),
+      lpTokenSupply: event.tokenSupply
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
-  await ctx.store.save(log)
+  await ctx.store.save(eventLog)
 }
 
-export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>): Promise<void> {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const stableSwap = await getOrCreateStableSwap(ctx, evmLogArgs.address)
-  const balances = await getBalancesSwap(ctx, evmLogArgs.address, stableSwap.numTokens)
-  stableSwap.balances = balances
+export async function handleStableSwapExchange(ctx: Context, log: Log): Promise<void> {
+  const transaction = assertNotNull(log.transaction, `Missing transaction`)
+  const stableSwap = await getOrCreateStableSwap(ctx, log, log.address)
+  const balances = await getBalancesSwap(ctx, log, log.address, stableSwap.numTokens)
+  stableSwap.balances = balances.map(b => b.toString())
 
   const { tokens } = stableSwap
   let tvl: BigDecimal = BigDecimal('0')
@@ -325,8 +316,8 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
   for (let i = 0; i < tokens.length; i++) {
     tokenUSDPrice = tokenUSDPrice.gt(ZERO_BD)
       ? tokenUSDPrice
-      : await findUSDPerToken(ctx, tokens[i])
-    const token = await getOrCreateToken(ctx, tokens[i])
+      : await findUSDPerToken(ctx, log, tokens[i])
+    const token = await getOrCreateToken(ctx, log, tokens[i])
     const balance = balances[i]
     const balanceDecimal: BigDecimal = BigDecimal(balance.toString()).div(10 ** token.decimals)
     tvl = tvl.plus(balanceDecimal)
@@ -334,35 +325,34 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
   stableSwap.tvlUSD = tvl.mul(tokenUSDPrice).toFixed(6)
   await ctx.store.save(stableSwap)
 
-  const stableSwapDayData = await updateStableSwapDayData(ctx, stableSwap)
-  const stableSwapHourData = await updateStableSwapHourData(ctx, stableSwap)
-  const stableDayData = await updateStableDayData(ctx)
+  const stableSwapDayData = await updateStableSwapDayData(ctx, log, stableSwap)
+  const stableSwapHourData = await updateStableSwapHourData(ctx, log, stableSwap)
+  const stableDayData = await updateStableDayData(ctx, log)
 
-  const event = StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)']
-    .decode(evmLogArgs)
+  const event = StableSwapContract.events.TokenExchange.decode(log)
 
   const exchange = new StableSwapExchange({
-    id: `token_exchange-${ctx.event.evmTxHash}`,
+    id: `token_exchange-${transaction.hash}`,
     stableSwap,
     data: new StableSwapTokenExchangeData({
       buyer: decodeHex(event.buyer),
-      soldId: event.soldId.toBigInt(),
-      tokensSold: event.tokensSold.toBigInt(),
-      boughtId: event.boughtId.toBigInt(),
-      tokensBought: event.tokensBought.toBigInt()
+      soldId: event.soldId,
+      tokensSold: event.tokensSold,
+      boughtId: event.boughtId,
+      tokensBought: event.tokensBought
     }),
-    block: BigInt(ctx.block.height),
-    timestamp: BigInt(ctx.block.timestamp),
-    transaction: decodeHex(ctx.event.evmTxHash)
+    block: BigInt(log.block.height),
+    timestamp: BigInt(log.block.timestamp),
+    transaction: decodeHex(transaction.hash)
   })
 
   await ctx.store.save(exchange)
 
   // save trade volume
-  if (event.soldId.toNumber() < tokens.length && event.boughtId.toNumber() < tokens.length) {
-    const soldToken = await getOrCreateToken(ctx, tokens[event.soldId.toNumber()])
+  if (Number(event.soldId) < tokens.length && Number(event.boughtId) < tokens.length) {
+    const soldToken = await getOrCreateToken(ctx, log, tokens[Number(event.soldId)])
     const sellVolume = BigDecimal(event.tokensSold.toString()).div(10 ** soldToken.decimals)
-    const boughtToken = await getOrCreateToken(ctx, tokens[event.boughtId.toNumber()])
+    const boughtToken = await getOrCreateToken(ctx, log, tokens[Number(event.boughtId)])
     const buyVolume = BigDecimal(event.tokensBought.toString()).div(10 ** boughtToken.decimals)
     const volume = sellVolume.plus(buyVolume).div(2).mul(tokenUSDPrice)
 
@@ -377,7 +367,7 @@ export async function handleStableSwapExchange(ctx: EvmLogHandlerContext<Store>)
     await ctx.store.save(stableDayData)
   }
 
-  await updateStableSwapInfo(ctx)
-  await updateStableDayData(ctx)
-  await updateZenlinkInfo(ctx)
+  await updateStableSwapInfo(ctx, log)
+  await updateStableDayData(ctx, log)
+  await updateZenlinkInfo(ctx, log)
 }

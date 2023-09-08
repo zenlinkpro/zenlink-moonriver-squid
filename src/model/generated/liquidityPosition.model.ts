@@ -4,24 +4,24 @@ import {Pair} from "./pair.model"
 
 @Entity_()
 export class LiquidityPosition {
-  constructor(props?: Partial<LiquidityPosition>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<LiquidityPosition>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => User, {nullable: true})
-  user!: User
+    @Index_()
+    @ManyToOne_(() => User, {nullable: true})
+    user!: User
 
-  @Index_()
-  @ManyToOne_(() => Pair, {nullable: true})
-  pair!: Pair
+    @Index_()
+    @ManyToOne_(() => Pair, {nullable: true})
+    pair!: Pair
 
-  /**
-   * BigDecimal
-   */
-  @Column_("text", {nullable: false})
-  liquidityTokenBalance!: string
+    /**
+     * BigDecimal
+     */
+    @Column_("text", {nullable: false})
+    liquidityTokenBalance!: string
 }

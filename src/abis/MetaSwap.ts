@@ -1,1904 +1,342 @@
-import * as ethers from "ethers";
-import assert from "assert";
+import * as ethers from 'ethers'
+import {LogEvent, Func, ContractBase} from './abi.support'
+import {ABI_JSON} from './MetaSwap.abi'
 
-export const abi = new ethers.utils.Interface(getJsonAbi());
-
-export type AddLiquidity0Event = ([provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, invariant: ethers.BigNumber, tokenSupply: ethers.BigNumber] & {provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, invariant: ethers.BigNumber, tokenSupply: ethers.BigNumber})
-
-export type AdminChanged0Event = ([oldAdmin: string, newAdmin: string] & {oldAdmin: string, newAdmin: string})
-
-export type Candidate0Event = ([newAdmin: string] & {newAdmin: string})
-
-export type CollectProtocolFee0Event = ([token: string, amount: ethers.BigNumber] & {token: string, amount: ethers.BigNumber})
-
-export type FeeControllerChanged0Event = ([newController: string] & {newController: string})
-
-export type FeeDistributorChanged0Event = ([newController: string] & {newController: string})
-
-export type FlashLoan0Event = ([caller: string, receiver: string, amounts_out: Array<ethers.BigNumber>] & {caller: string, receiver: string, amounts_out: Array<ethers.BigNumber>})
-
-export type Initialized0Event = ([version: number] & {version: number})
-
-export type NewFee0Event = ([fee: ethers.BigNumber, adminFee: ethers.BigNumber] & {fee: ethers.BigNumber, adminFee: ethers.BigNumber})
-
-export type Paused0Event = ([account: string] & {account: string})
-
-export type RampA0Event = ([oldA: ethers.BigNumber, newA: ethers.BigNumber, initialTime: ethers.BigNumber, futureTime: ethers.BigNumber] & {oldA: ethers.BigNumber, newA: ethers.BigNumber, initialTime: ethers.BigNumber, futureTime: ethers.BigNumber})
-
-export type RemoveLiquidity0Event = ([provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, tokenSupply: ethers.BigNumber] & {provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, tokenSupply: ethers.BigNumber})
-
-export type RemoveLiquidityImbalance0Event = ([provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, invariant: ethers.BigNumber, tokenSupply: ethers.BigNumber] & {provider: string, tokenAmounts: Array<ethers.BigNumber>, fees: Array<ethers.BigNumber>, invariant: ethers.BigNumber, tokenSupply: ethers.BigNumber})
-
-export type RemoveLiquidityOne0Event = ([provider: string, tokenIndex: ethers.BigNumber, tokenAmount: ethers.BigNumber, coinAmount: ethers.BigNumber] & {provider: string, tokenIndex: ethers.BigNumber, tokenAmount: ethers.BigNumber, coinAmount: ethers.BigNumber})
-
-export type StopRampA0Event = ([A: ethers.BigNumber, timestamp: ethers.BigNumber] & {A: ethers.BigNumber, timestamp: ethers.BigNumber})
-
-export type TokenExchange0Event = ([buyer: string, soldId: ethers.BigNumber, tokensSold: ethers.BigNumber, boughtId: ethers.BigNumber, tokensBought: ethers.BigNumber] & {buyer: string, soldId: ethers.BigNumber, tokensSold: ethers.BigNumber, boughtId: ethers.BigNumber, tokensBought: ethers.BigNumber})
-
-export type TokenSwapUnderlying0Event = ([buyer: string, tokensSold: ethers.BigNumber, tokensBought: ethers.BigNumber, soldId: ethers.BigNumber, boughtId: ethers.BigNumber] & {buyer: string, tokensSold: ethers.BigNumber, tokensBought: ethers.BigNumber, soldId: ethers.BigNumber, boughtId: ethers.BigNumber})
-
-export type Unpaused0Event = ([account: string] & {account: string})
-
-export interface EvmLog {
-  data: string;
-  topics: string[];
-}
-
-function decodeEvent(signature: string, data: EvmLog): any {
-  return abi.decodeEventLog(
-    abi.getEvent(signature),
-    data.data || "",
-    data.topics
-  );
-}
+export const abi = new ethers.Interface(ABI_JSON);
 
 export const events = {
-  "AddLiquidity(address,uint256[],uint256[],uint256,uint256)": {
-    topic: abi.getEventTopic("AddLiquidity(address,uint256[],uint256[],uint256,uint256)"),
-    decode(data: EvmLog): AddLiquidity0Event {
-      return decodeEvent("AddLiquidity(address,uint256[],uint256[],uint256,uint256)", data)
-    }
-  }
-  ,
-  "AdminChanged(address,address)": {
-    topic: abi.getEventTopic("AdminChanged(address,address)"),
-    decode(data: EvmLog): AdminChanged0Event {
-      return decodeEvent("AdminChanged(address,address)", data)
-    }
-  }
-  ,
-  "Candidate(address)": {
-    topic: abi.getEventTopic("Candidate(address)"),
-    decode(data: EvmLog): Candidate0Event {
-      return decodeEvent("Candidate(address)", data)
-    }
-  }
-  ,
-  "CollectProtocolFee(address,uint256)": {
-    topic: abi.getEventTopic("CollectProtocolFee(address,uint256)"),
-    decode(data: EvmLog): CollectProtocolFee0Event {
-      return decodeEvent("CollectProtocolFee(address,uint256)", data)
-    }
-  }
-  ,
-  "FeeControllerChanged(address)": {
-    topic: abi.getEventTopic("FeeControllerChanged(address)"),
-    decode(data: EvmLog): FeeControllerChanged0Event {
-      return decodeEvent("FeeControllerChanged(address)", data)
-    }
-  }
-  ,
-  "FeeDistributorChanged(address)": {
-    topic: abi.getEventTopic("FeeDistributorChanged(address)"),
-    decode(data: EvmLog): FeeDistributorChanged0Event {
-      return decodeEvent("FeeDistributorChanged(address)", data)
-    }
-  }
-  ,
-  "FlashLoan(address,address,uint256[])": {
-    topic: abi.getEventTopic("FlashLoan(address,address,uint256[])"),
-    decode(data: EvmLog): FlashLoan0Event {
-      return decodeEvent("FlashLoan(address,address,uint256[])", data)
-    }
-  }
-  ,
-  "Initialized(uint8)": {
-    topic: abi.getEventTopic("Initialized(uint8)"),
-    decode(data: EvmLog): Initialized0Event {
-      return decodeEvent("Initialized(uint8)", data)
-    }
-  }
-  ,
-  "NewFee(uint256,uint256)": {
-    topic: abi.getEventTopic("NewFee(uint256,uint256)"),
-    decode(data: EvmLog): NewFee0Event {
-      return decodeEvent("NewFee(uint256,uint256)", data)
-    }
-  }
-  ,
-  "Paused(address)": {
-    topic: abi.getEventTopic("Paused(address)"),
-    decode(data: EvmLog): Paused0Event {
-      return decodeEvent("Paused(address)", data)
-    }
-  }
-  ,
-  "RampA(uint256,uint256,uint256,uint256)": {
-    topic: abi.getEventTopic("RampA(uint256,uint256,uint256,uint256)"),
-    decode(data: EvmLog): RampA0Event {
-      return decodeEvent("RampA(uint256,uint256,uint256,uint256)", data)
-    }
-  }
-  ,
-  "RemoveLiquidity(address,uint256[],uint256[],uint256)": {
-    topic: abi.getEventTopic("RemoveLiquidity(address,uint256[],uint256[],uint256)"),
-    decode(data: EvmLog): RemoveLiquidity0Event {
-      return decodeEvent("RemoveLiquidity(address,uint256[],uint256[],uint256)", data)
-    }
-  }
-  ,
-  "RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)": {
-    topic: abi.getEventTopic("RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)"),
-    decode(data: EvmLog): RemoveLiquidityImbalance0Event {
-      return decodeEvent("RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)", data)
-    }
-  }
-  ,
-  "RemoveLiquidityOne(address,uint256,uint256,uint256)": {
-    topic: abi.getEventTopic("RemoveLiquidityOne(address,uint256,uint256,uint256)"),
-    decode(data: EvmLog): RemoveLiquidityOne0Event {
-      return decodeEvent("RemoveLiquidityOne(address,uint256,uint256,uint256)", data)
-    }
-  }
-  ,
-  "StopRampA(uint256,uint256)": {
-    topic: abi.getEventTopic("StopRampA(uint256,uint256)"),
-    decode(data: EvmLog): StopRampA0Event {
-      return decodeEvent("StopRampA(uint256,uint256)", data)
-    }
-  }
-  ,
-  "TokenExchange(address,uint256,uint256,uint256,uint256)": {
-    topic: abi.getEventTopic("TokenExchange(address,uint256,uint256,uint256,uint256)"),
-    decode(data: EvmLog): TokenExchange0Event {
-      return decodeEvent("TokenExchange(address,uint256,uint256,uint256,uint256)", data)
-    }
-  }
-  ,
-  "TokenSwapUnderlying(address,uint256,uint256,uint128,uint128)": {
-    topic: abi.getEventTopic("TokenSwapUnderlying(address,uint256,uint256,uint128,uint128)"),
-    decode(data: EvmLog): TokenSwapUnderlying0Event {
-      return decodeEvent("TokenSwapUnderlying(address,uint256,uint256,uint128,uint128)", data)
-    }
-  }
-  ,
-  "Unpaused(address)": {
-    topic: abi.getEventTopic("Unpaused(address)"),
-    decode(data: EvmLog): Unpaused0Event {
-      return decodeEvent("Unpaused(address)", data)
-    }
-  }
-  ,
-}
-
-export type AddLiquidity0Function = ([amounts: Array<ethers.BigNumber>, minMintAmount: ethers.BigNumber, deadline: ethers.BigNumber] & {amounts: Array<ethers.BigNumber>, minMintAmount: ethers.BigNumber, deadline: ethers.BigNumber})
-
-export type FlashLoan0Function = ([amountsOut: Array<ethers.BigNumber>, to: string, data: string, deadline: ethers.BigNumber] & {amountsOut: Array<ethers.BigNumber>, to: string, data: string, deadline: ethers.BigNumber})
-
-export type Initialize0Function = [Array<string>, Array<number>, string, string, ethers.BigNumber, ethers.BigNumber, ethers.BigNumber, string]
-
-export type InitializeMetaSwap0Function = ([_pooledTokens: Array<string>, decimals: Array<number>, lpTokenName: string, lpTokenSymbol: string, _a: ethers.BigNumber, _fee: ethers.BigNumber, _adminFee: ethers.BigNumber, _feeDistributor: string, baseSwap: string] & {_pooledTokens: Array<string>, decimals: Array<number>, lpTokenName: string, lpTokenSymbol: string, _a: ethers.BigNumber, _fee: ethers.BigNumber, _adminFee: ethers.BigNumber, _feeDistributor: string, baseSwap: string})
-
-export type RampA0Function = ([futureA: ethers.BigNumber, futureATime: ethers.BigNumber] & {futureA: ethers.BigNumber, futureATime: ethers.BigNumber})
-
-export type RemoveLiquidity0Function = ([lpAmount: ethers.BigNumber, minAmounts: Array<ethers.BigNumber>, deadline: ethers.BigNumber] & {lpAmount: ethers.BigNumber, minAmounts: Array<ethers.BigNumber>, deadline: ethers.BigNumber})
-
-export type RemoveLiquidityImbalance0Function = ([amounts: Array<ethers.BigNumber>, maxBurnAmount: ethers.BigNumber, deadline: ethers.BigNumber] & {amounts: Array<ethers.BigNumber>, maxBurnAmount: ethers.BigNumber, deadline: ethers.BigNumber})
-
-export type RemoveLiquidityOneToken0Function = ([lpAmount: ethers.BigNumber, index: number, minAmount: ethers.BigNumber, deadline: ethers.BigNumber] & {lpAmount: ethers.BigNumber, index: number, minAmount: ethers.BigNumber, deadline: ethers.BigNumber})
-
-export type SetAdminCandidate0Function = ([_candidate: string] & {_candidate: string})
-
-export type SetFee0Function = ([newSwapFee: ethers.BigNumber, newAdminFee: ethers.BigNumber] & {newSwapFee: ethers.BigNumber, newAdminFee: ethers.BigNumber})
-
-export type SetFeeController0Function = ([_feeController: string] & {_feeController: string})
-
-export type SetFeeDistributor0Function = ([_feeDistributor: string] & {_feeDistributor: string})
-
-export type Swap0Function = ([tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber, minDy: ethers.BigNumber, deadline: ethers.BigNumber] & {tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber, minDy: ethers.BigNumber, deadline: ethers.BigNumber})
-
-export type SwapUnderlying0Function = ([tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber, minDy: ethers.BigNumber, deadline: ethers.BigNumber] & {tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber, minDy: ethers.BigNumber, deadline: ethers.BigNumber})
-
-
-function decodeFunction(data: string): any {
-  return abi.decodeFunctionData(data.slice(0, 10), data)
+    AddLiquidity: new LogEvent<([provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, invariant: bigint, tokenSupply: bigint] & {provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, invariant: bigint, tokenSupply: bigint})>(
+        abi, '0x189c623b666b1b45b83d7178f39b8c087cb09774317ca2f53c2d3c3726f222a2'
+    ),
+    AdminChanged: new LogEvent<([oldAdmin: string, newAdmin: string] & {oldAdmin: string, newAdmin: string})>(
+        abi, '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f'
+    ),
+    Candidate: new LogEvent<([newAdmin: string] & {newAdmin: string})>(
+        abi, '0x8cc40b9abca4a505a92028908f9d913d621d18112c69412806506f02333f26b4'
+    ),
+    CollectProtocolFee: new LogEvent<([token: string, amount: bigint] & {token: string, amount: bigint})>(
+        abi, '0xee3859efa95e525bc2bcb149b51b60a8bb4e89c647392d9d4112e03c3e73bdd6'
+    ),
+    FeeControllerChanged: new LogEvent<([newController: string] & {newController: string})>(
+        abi, '0x4c3f3b9852ccceadd50f16518f348e2624c8f0240acdd5bc81911c0fba83ec67'
+    ),
+    FeeDistributorChanged: new LogEvent<([newController: string] & {newController: string})>(
+        abi, '0xae5a12c29e496b092467a620746b9eaf4e0e231a631a4370c233b1fac38e8e26'
+    ),
+    FlashLoan: new LogEvent<([caller: string, receiver: string, amounts_out: Array<bigint>] & {caller: string, receiver: string, amounts_out: Array<bigint>})>(
+        abi, '0x1e659566d9cc1f93351027d53422a1ec429f52c34bc45ee462dd91e99bdd26bb'
+    ),
+    Initialized: new LogEvent<([version: number] & {version: number})>(
+        abi, '0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498'
+    ),
+    NewFee: new LogEvent<([fee: bigint, adminFee: bigint] & {fee: bigint, adminFee: bigint})>(
+        abi, '0xbe12859b636aed607d5230b2cc2711f68d70e51060e6cca1f575ef5d2fcc95d1'
+    ),
+    Paused: new LogEvent<([account: string] & {account: string})>(
+        abi, '0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258'
+    ),
+    RampA: new LogEvent<([oldA: bigint, newA: bigint, initialTime: bigint, futureTime: bigint] & {oldA: bigint, newA: bigint, initialTime: bigint, futureTime: bigint})>(
+        abi, '0xa2b71ec6df949300b59aab36b55e189697b750119dd349fcfa8c0f779e83c254'
+    ),
+    RemoveLiquidity: new LogEvent<([provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, tokenSupply: bigint] & {provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, tokenSupply: bigint})>(
+        abi, '0x347ad828e58cbe534d8f6b67985d791360756b18f0d95fd9f197a66cc46480ea'
+    ),
+    RemoveLiquidityImbalance: new LogEvent<([provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, invariant: bigint, tokenSupply: bigint] & {provider: string, tokenAmounts: Array<bigint>, fees: Array<bigint>, invariant: bigint, tokenSupply: bigint})>(
+        abi, '0x3631c28b1f9dd213e0319fb167b554d76b6c283a41143eb400a0d1adb1af1755'
+    ),
+    RemoveLiquidityOne: new LogEvent<([provider: string, tokenIndex: bigint, tokenAmount: bigint, coinAmount: bigint] & {provider: string, tokenIndex: bigint, tokenAmount: bigint, coinAmount: bigint})>(
+        abi, '0x5ad056f2e28a8cec232015406b843668c1e36cda598127ec3b8c59b8c72773a0'
+    ),
+    StopRampA: new LogEvent<([A: bigint, timestamp: bigint] & {A: bigint, timestamp: bigint})>(
+        abi, '0x46e22fb3709ad289f62ce63d469248536dbc78d82b84a3d7e74ad606dc201938'
+    ),
+    TokenExchange: new LogEvent<([buyer: string, soldId: bigint, tokensSold: bigint, boughtId: bigint, tokensBought: bigint] & {buyer: string, soldId: bigint, tokensSold: bigint, boughtId: bigint, tokensBought: bigint})>(
+        abi, '0xb2e76ae99761dc136e598d4a629bb347eccb9532a5f8bbd72e18467c3c34cc98'
+    ),
+    TokenSwapUnderlying: new LogEvent<([buyer: string, tokensSold: bigint, tokensBought: bigint, soldId: bigint, boughtId: bigint] & {buyer: string, tokensSold: bigint, tokensBought: bigint, soldId: bigint, boughtId: bigint})>(
+        abi, '0x6617207207e397b41fc98016d8c9febb7223f44c355db66ad429730f2b950a60'
+    ),
+    Unpaused: new LogEvent<([account: string] & {account: string})>(
+        abi, '0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa'
+    ),
 }
 
 export const functions = {
-  "addLiquidity(uint256[],uint256,uint256)": {
-    sighash: abi.getSighash("addLiquidity(uint256[],uint256,uint256)"),
-    decode(input: string): AddLiquidity0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "candidateConfirm()": {
-    sighash: abi.getSighash("candidateConfirm()"),
-  }
-  ,
-  "flashLoan(uint256[],address,bytes,uint256)": {
-    sighash: abi.getSighash("flashLoan(uint256[],address,bytes,uint256)"),
-    decode(input: string): FlashLoan0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "initialize(address[],uint8[],string,string,uint256,uint256,uint256,address)": {
-    sighash: abi.getSighash("initialize(address[],uint8[],string,string,uint256,uint256,uint256,address)"),
-    decode(input: string): Initialize0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "initializeMetaSwap(address[],uint8[],string,string,uint256,uint256,uint256,address,address)": {
-    sighash: abi.getSighash("initializeMetaSwap(address[],uint8[],string,string,uint256,uint256,uint256,address,address)"),
-    decode(input: string): InitializeMetaSwap0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "pause()": {
-    sighash: abi.getSighash("pause()"),
-  }
-  ,
-  "rampA(uint256,uint256)": {
-    sighash: abi.getSighash("rampA(uint256,uint256)"),
-    decode(input: string): RampA0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "removeLiquidity(uint256,uint256[],uint256)": {
-    sighash: abi.getSighash("removeLiquidity(uint256,uint256[],uint256)"),
-    decode(input: string): RemoveLiquidity0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "removeLiquidityImbalance(uint256[],uint256,uint256)": {
-    sighash: abi.getSighash("removeLiquidityImbalance(uint256[],uint256,uint256)"),
-    decode(input: string): RemoveLiquidityImbalance0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "removeLiquidityOneToken(uint256,uint8,uint256,uint256)": {
-    sighash: abi.getSighash("removeLiquidityOneToken(uint256,uint8,uint256,uint256)"),
-    decode(input: string): RemoveLiquidityOneToken0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setAdminCandidate(address)": {
-    sighash: abi.getSighash("setAdminCandidate(address)"),
-    decode(input: string): SetAdminCandidate0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setFee(uint256,uint256)": {
-    sighash: abi.getSighash("setFee(uint256,uint256)"),
-    decode(input: string): SetFee0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setFeeController(address)": {
-    sighash: abi.getSighash("setFeeController(address)"),
-    decode(input: string): SetFeeController0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setFeeDistributor(address)": {
-    sighash: abi.getSighash("setFeeDistributor(address)"),
-    decode(input: string): SetFeeDistributor0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "stopRampA()": {
-    sighash: abi.getSighash("stopRampA()"),
-  }
-  ,
-  "swap(uint8,uint8,uint256,uint256,uint256)": {
-    sighash: abi.getSighash("swap(uint8,uint8,uint256,uint256,uint256)"),
-    decode(input: string): Swap0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "swapUnderlying(uint8,uint8,uint256,uint256,uint256)": {
-    sighash: abi.getSighash("swapUnderlying(uint8,uint8,uint256,uint256,uint256)"),
-    decode(input: string): SwapUnderlying0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "unpause()": {
-    sighash: abi.getSighash("unpause()"),
-  }
-  ,
-  "withdrawAdminFee()": {
-    sighash: abi.getSighash("withdrawAdminFee()"),
-  }
-  ,
+    MAX_A: new Func<[], {}, bigint>(
+        abi, '0x39698415'
+    ),
+    MAX_ADMIN_FEE: new Func<[], {}, bigint>(
+        abi, '0xf3de0362'
+    ),
+    MAX_A_CHANGE: new Func<[], {}, bigint>(
+        abi, '0xab5ac061'
+    ),
+    MAX_SWAP_FEE: new Func<[], {}, bigint>(
+        abi, '0xab3d8544'
+    ),
+    MIN_RAMP_TIME: new Func<[], {}, bigint>(
+        abi, '0x06e9481c'
+    ),
+    addLiquidity: new Func<[amounts: Array<bigint>, minMintAmount: bigint, deadline: bigint], {amounts: Array<bigint>, minMintAmount: bigint, deadline: bigint}, bigint>(
+        abi, '0x4d49e87d'
+    ),
+    admin: new Func<[], {}, string>(
+        abi, '0xf851a440'
+    ),
+    adminCandidate: new Func<[], {}, string>(
+        abi, '0x3accfa6c'
+    ),
+    calculateRemoveLiquidity: new Func<[amount: bigint], {amount: bigint}, Array<bigint>>(
+        abi, '0xf2fad2b6'
+    ),
+    calculateRemoveLiquidityOneToken: new Func<[tokenAmount: bigint, tokenIndex: number], {tokenAmount: bigint, tokenIndex: number}, bigint>(
+        abi, '0x342a87a1'
+    ),
+    calculateSwap: new Func<[tokenIndexFrom: number, tokenIndexTo: number, dx: bigint], {tokenIndexFrom: number, tokenIndexTo: number, dx: bigint}, bigint>(
+        abi, '0xa95b089f'
+    ),
+    calculateSwapUnderlying: new Func<[tokenIndexFrom: number, tokenIndexTo: number, dx: bigint], {tokenIndexFrom: number, tokenIndexTo: number, dx: bigint}, bigint>(
+        abi, '0x75d8e3e4'
+    ),
+    calculateTokenAmount: new Func<[amounts: Array<bigint>, deposit: boolean], {amounts: Array<bigint>, deposit: boolean}, bigint>(
+        abi, '0xe6ab2806'
+    ),
+    candidateConfirm: new Func<[], {}, []>(
+        abi, '0x3f023230'
+    ),
+    feeController: new Func<[], {}, string>(
+        abi, '0x6999b377'
+    ),
+    feeDistributor: new Func<[], {}, string>(
+        abi, '0x0d43e8ad'
+    ),
+    flashLoan: new Func<[amountsOut: Array<bigint>, to: string, data: string, deadline: bigint], {amountsOut: Array<bigint>, to: string, data: string, deadline: bigint}, []>(
+        abi, '0x0e0807f6'
+    ),
+    getA: new Func<[], {}, bigint>(
+        abi, '0xd46300fd'
+    ),
+    getAPrecise: new Func<[], {}, bigint>(
+        abi, '0x0ba81959'
+    ),
+    getAdminBalance: new Func<[index: number], {index: number}, bigint>(
+        abi, '0x8554a7d4'
+    ),
+    getAdminBalances: new Func<[], {}, Array<bigint>>(
+        abi, '0x18f52ce2'
+    ),
+    getLpToken: new Func<[], {}, string>(
+        abi, '0x8214f5a4'
+    ),
+    getNumberOfTokens: new Func<[], {}, bigint>(
+        abi, '0xefeecb51'
+    ),
+    getToken: new Func<[index: number], {index: number}, string>(
+        abi, '0x82b86600'
+    ),
+    getTokenBalance: new Func<[index: number], {index: number}, bigint>(
+        abi, '0x91ceb3eb'
+    ),
+    getTokenBalances: new Func<[], {}, Array<bigint>>(
+        abi, '0xa1dc9031'
+    ),
+    getTokenIndex: new Func<[token: string], {token: string}, number>(
+        abi, '0x66c0bd24'
+    ),
+    getTokenPrecisionMultipliers: new Func<[], {}, Array<bigint>>(
+        abi, '0xd41f6568'
+    ),
+    getTokens: new Func<[], {}, Array<string>>(
+        abi, '0xaa6ca808'
+    ),
+    getVirtualPrice: new Func<[], {}, bigint>(
+        abi, '0xe25aa5fa'
+    ),
+    initialize: new Func<[_: Array<string>, _: Array<number>, _: string, _: string, _: bigint, _: bigint, _: bigint, _: string], {}, []>(
+        abi, '0xb28cb6dc'
+    ),
+    initializeMetaSwap: new Func<[_pooledTokens: Array<string>, decimals: Array<number>, lpTokenName: string, lpTokenSymbol: string, _a: bigint, _fee: bigint, _adminFee: bigint, _feeDistributor: string, baseSwap: string], {_pooledTokens: Array<string>, decimals: Array<number>, lpTokenName: string, lpTokenSymbol: string, _a: bigint, _fee: bigint, _adminFee: bigint, _feeDistributor: string, baseSwap: string}, []>(
+        abi, '0x118e1c77'
+    ),
+    metaSwapStorage: new Func<[], {}, ([baseSwap: string, baseVirtualPrice: bigint, baseCacheLastUpdated: bigint] & {baseSwap: string, baseVirtualPrice: bigint, baseCacheLastUpdated: bigint})>(
+        abi, '0x2d74d4e9'
+    ),
+    pause: new Func<[], {}, []>(
+        abi, '0x8456cb59'
+    ),
+    paused: new Func<[], {}, boolean>(
+        abi, '0x5c975abb'
+    ),
+    rampA: new Func<[futureA: bigint, futureATime: bigint], {futureA: bigint, futureATime: bigint}, []>(
+        abi, '0x593d132c'
+    ),
+    removeLiquidity: new Func<[lpAmount: bigint, minAmounts: Array<bigint>, deadline: bigint], {lpAmount: bigint, minAmounts: Array<bigint>, deadline: bigint}, Array<bigint>>(
+        abi, '0x31cd52b0'
+    ),
+    removeLiquidityImbalance: new Func<[amounts: Array<bigint>, maxBurnAmount: bigint, deadline: bigint], {amounts: Array<bigint>, maxBurnAmount: bigint, deadline: bigint}, bigint>(
+        abi, '0x84cdd9bc'
+    ),
+    removeLiquidityOneToken: new Func<[lpAmount: bigint, index: number, minAmount: bigint, deadline: bigint], {lpAmount: bigint, index: number, minAmount: bigint, deadline: bigint}, bigint>(
+        abi, '0x3e3a1560'
+    ),
+    setAdminCandidate: new Func<[_candidate: string], {_candidate: string}, []>(
+        abi, '0x96de7aa0'
+    ),
+    setFee: new Func<[newSwapFee: bigint, newAdminFee: bigint], {newSwapFee: bigint, newAdminFee: bigint}, []>(
+        abi, '0x52f7c988'
+    ),
+    setFeeController: new Func<[_feeController: string], {_feeController: string}, []>(
+        abi, '0x3ed4c678'
+    ),
+    setFeeDistributor: new Func<[_feeDistributor: string], {_feeDistributor: string}, []>(
+        abi, '0xccfc2e8d'
+    ),
+    stopRampA: new Func<[], {}, []>(
+        abi, '0xc4db7fa0'
+    ),
+    swap: new Func<[tokenIndexFrom: number, tokenIndexTo: number, dx: bigint, minDy: bigint, deadline: bigint], {tokenIndexFrom: number, tokenIndexTo: number, dx: bigint, minDy: bigint, deadline: bigint}, bigint>(
+        abi, '0x91695586'
+    ),
+    swapStorage: new Func<[], {}, ([lpToken: string, fee: bigint, adminFee: bigint, initialA: bigint, futureA: bigint, initialATime: bigint, futureATime: bigint] & {lpToken: string, fee: bigint, adminFee: bigint, initialA: bigint, futureA: bigint, initialATime: bigint, futureATime: bigint})>(
+        abi, '0x5fd65f0f'
+    ),
+    swapUnderlying: new Func<[tokenIndexFrom: number, tokenIndexTo: number, dx: bigint, minDy: bigint, deadline: bigint], {tokenIndexFrom: number, tokenIndexTo: number, dx: bigint, minDy: bigint, deadline: bigint}, bigint>(
+        abi, '0x78e0fae8'
+    ),
+    tokenIndexes: new Func<[_: string], {}, number>(
+        abi, '0x04bc3b1c'
+    ),
+    unpause: new Func<[], {}, []>(
+        abi, '0x3f4ba83a'
+    ),
+    withdrawAdminFee: new Func<[], {}, []>(
+        abi, '0xfe49abe3'
+    ),
 }
 
-interface ChainContext  {
-  _chain: Chain
-}
+export class Contract extends ContractBase {
 
-interface BlockContext  {
-  _chain: Chain
-  block: Block
-}
-
-interface Block  {
-  height: number
-}
-
-interface Chain  {
-  client:  {
-    call: <T=any>(method: string, params?: unknown[]) => Promise<T>
-  }
-}
-
-export class Contract  {
-  private readonly _chain: Chain
-  private readonly blockHeight: number
-  readonly address: string
-
-  constructor(ctx: BlockContext, address: string)
-  constructor(ctx: ChainContext, block: Block, address: string)
-  constructor(ctx: BlockContext, blockOrAddress: Block | string, address?: string) {
-    this._chain = ctx._chain
-    if (typeof blockOrAddress === 'string')  {
-      this.blockHeight = ctx.block.height
-      this.address = ethers.utils.getAddress(blockOrAddress)
+    MAX_A(): Promise<bigint> {
+        return this.eth_call(functions.MAX_A, [])
     }
-    else  {
-      assert(address != null)
-      this.blockHeight = blockOrAddress.height
-      this.address = ethers.utils.getAddress(address)
+
+    MAX_ADMIN_FEE(): Promise<bigint> {
+        return this.eth_call(functions.MAX_ADMIN_FEE, [])
     }
-  }
 
-  async MAX_A(): Promise<ethers.BigNumber> {
-    return this.call("MAX_A", [])
-  }
-
-  async MAX_ADMIN_FEE(): Promise<ethers.BigNumber> {
-    return this.call("MAX_ADMIN_FEE", [])
-  }
-
-  async MAX_A_CHANGE(): Promise<ethers.BigNumber> {
-    return this.call("MAX_A_CHANGE", [])
-  }
-
-  async MAX_SWAP_FEE(): Promise<ethers.BigNumber> {
-    return this.call("MAX_SWAP_FEE", [])
-  }
-
-  async MIN_RAMP_TIME(): Promise<ethers.BigNumber> {
-    return this.call("MIN_RAMP_TIME", [])
-  }
-
-  async admin(): Promise<string> {
-    return this.call("admin", [])
-  }
-
-  async adminCandidate(): Promise<string> {
-    return this.call("adminCandidate", [])
-  }
-
-  async calculateRemoveLiquidity(amount: ethers.BigNumber): Promise<Array<ethers.BigNumber>> {
-    return this.call("calculateRemoveLiquidity", [amount])
-  }
-
-  async calculateRemoveLiquidityOneToken(tokenAmount: ethers.BigNumber, tokenIndex: number): Promise<ethers.BigNumber> {
-    return this.call("calculateRemoveLiquidityOneToken", [tokenAmount, tokenIndex])
-  }
-
-  async calculateSwap(tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("calculateSwap", [tokenIndexFrom, tokenIndexTo, dx])
-  }
-
-  async calculateSwapUnderlying(tokenIndexFrom: number, tokenIndexTo: number, dx: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("calculateSwapUnderlying", [tokenIndexFrom, tokenIndexTo, dx])
-  }
-
-  async calculateTokenAmount(amounts: Array<ethers.BigNumber>, deposit: boolean): Promise<ethers.BigNumber> {
-    return this.call("calculateTokenAmount", [amounts, deposit])
-  }
-
-  async feeController(): Promise<string> {
-    return this.call("feeController", [])
-  }
-
-  async feeDistributor(): Promise<string> {
-    return this.call("feeDistributor", [])
-  }
-
-  async getA(): Promise<ethers.BigNumber> {
-    return this.call("getA", [])
-  }
-
-  async getAPrecise(): Promise<ethers.BigNumber> {
-    return this.call("getAPrecise", [])
-  }
-
-  async getAdminBalance(index: number): Promise<ethers.BigNumber> {
-    return this.call("getAdminBalance", [index])
-  }
-
-  async getAdminBalances(): Promise<Array<ethers.BigNumber>> {
-    return this.call("getAdminBalances", [])
-  }
-
-  async getLpToken(): Promise<string> {
-    return this.call("getLpToken", [])
-  }
-
-  async getNumberOfTokens(): Promise<ethers.BigNumber> {
-    return this.call("getNumberOfTokens", [])
-  }
-
-  async getToken(index: number): Promise<string> {
-    return this.call("getToken", [index])
-  }
-
-  async getTokenBalance(index: number): Promise<ethers.BigNumber> {
-    return this.call("getTokenBalance", [index])
-  }
-
-  async getTokenBalances(): Promise<Array<ethers.BigNumber>> {
-    return this.call("getTokenBalances", [])
-  }
-
-  async getTokenIndex(token: string): Promise<number> {
-    return this.call("getTokenIndex", [token])
-  }
-
-  async getTokenPrecisionMultipliers(): Promise<Array<ethers.BigNumber>> {
-    return this.call("getTokenPrecisionMultipliers", [])
-  }
-
-  async getTokens(): Promise<Array<string>> {
-    return this.call("getTokens", [])
-  }
-
-  async getVirtualPrice(): Promise<ethers.BigNumber> {
-    return this.call("getVirtualPrice", [])
-  }
-
-  async metaSwapStorage(): Promise<([baseSwap: string, baseVirtualPrice: ethers.BigNumber, baseCacheLastUpdated: ethers.BigNumber] & {baseSwap: string, baseVirtualPrice: ethers.BigNumber, baseCacheLastUpdated: ethers.BigNumber})> {
-    return this.call("metaSwapStorage", [])
-  }
-
-  async paused(): Promise<boolean> {
-    return this.call("paused", [])
-  }
-
-  async swapStorage(): Promise<([lpToken: string, fee: ethers.BigNumber, adminFee: ethers.BigNumber, initialA: ethers.BigNumber, futureA: ethers.BigNumber, initialATime: ethers.BigNumber, futureATime: ethers.BigNumber] & {lpToken: string, fee: ethers.BigNumber, adminFee: ethers.BigNumber, initialA: ethers.BigNumber, futureA: ethers.BigNumber, initialATime: ethers.BigNumber, futureATime: ethers.BigNumber})> {
-    return this.call("swapStorage", [])
-  }
-
-  async tokenIndexes(arg0: string): Promise<number> {
-    return this.call("tokenIndexes", [arg0])
-  }
-
-  private async call(name: string, args: any[]) : Promise<any> {
-    const fragment = abi.getFunction(name)
-    const data = abi.encodeFunctionData(fragment, args)
-    const result = await this._chain.client.call('eth_call', [{to: this.address, data}, this.blockHeight])
-    const decoded = abi.decodeFunctionResult(fragment, result)
-    return decoded.length > 1 ? decoded : decoded[0]
-  }
-}
-
-function getJsonAbi(): any {
-  return [
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "tokenAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "fees",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "invariant",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenSupply",
-          "type": "uint256"
-        }
-      ],
-      "name": "AddLiquidity",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "oldAdmin",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "AdminChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "Candidate",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "CollectProtocolFee",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "newController",
-          "type": "address"
-        }
-      ],
-      "name": "FeeControllerChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "newController",
-          "type": "address"
-        }
-      ],
-      "name": "FeeDistributorChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "receiver",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts_out",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "FlashLoan",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "version",
-          "type": "uint8"
-        }
-      ],
-      "name": "Initialized",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "adminFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "NewFee",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "Paused",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "oldA",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "newA",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "initialTime",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "futureTime",
-          "type": "uint256"
-        }
-      ],
-      "name": "RampA",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "tokenAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "fees",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenSupply",
-          "type": "uint256"
-        }
-      ],
-      "name": "RemoveLiquidity",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "tokenAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "fees",
-          "type": "uint256[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "invariant",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenSupply",
-          "type": "uint256"
-        }
-      ],
-      "name": "RemoveLiquidityImbalance",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenIndex",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "coinAmount",
-          "type": "uint256"
-        }
-      ],
-      "name": "RemoveLiquidityOne",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "A",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "timestamp",
-          "type": "uint256"
-        }
-      ],
-      "name": "StopRampA",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "buyer",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "soldId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokensSold",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "boughtId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokensBought",
-          "type": "uint256"
-        }
-      ],
-      "name": "TokenExchange",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "buyer",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokensSold",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokensBought",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint128",
-          "name": "soldId",
-          "type": "uint128"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint128",
-          "name": "boughtId",
-          "type": "uint128"
-        }
-      ],
-      "name": "TokenSwapUnderlying",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "Unpaused",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "MAX_A",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MAX_ADMIN_FEE",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MAX_A_CHANGE",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MAX_SWAP_FEE",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MIN_RAMP_TIME",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minMintAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "addLiquidity",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "admin",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "adminCandidate",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateRemoveLiquidity",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "tokenAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tokenIndex",
-          "type": "uint8"
-        }
-      ],
-      "name": "calculateRemoveLiquidityOneToken",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexFrom",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexTo",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "dx",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateSwap",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexFrom",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexTo",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "dx",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateSwapUnderlying",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bool",
-          "name": "deposit",
-          "type": "bool"
-        }
-      ],
-      "name": "calculateTokenAmount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "candidateConfirm",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "feeController",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "feeDistributor",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "amountsOut",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "data",
-          "type": "bytes"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "flashLoan",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getA",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getAPrecise",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "index",
-          "type": "uint8"
-        }
-      ],
-      "name": "getAdminBalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getAdminBalances",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "adminBalances",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getLpToken",
-      "outputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getNumberOfTokens",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "index",
-          "type": "uint8"
-        }
-      ],
-      "name": "getToken",
-      "outputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "index",
-          "type": "uint8"
-        }
-      ],
-      "name": "getTokenBalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getTokenBalances",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "getTokenIndex",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "index",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getTokenPrecisionMultipliers",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getTokens",
-      "outputs": [
-        {
-          "internalType": "contract IERC20[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getVirtualPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "",
-          "type": "uint8[]"
-        },
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "_pooledTokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "decimals",
-          "type": "uint8[]"
-        },
-        {
-          "internalType": "string",
-          "name": "lpTokenName",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "lpTokenSymbol",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_a",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_adminFee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_feeDistributor",
-          "type": "address"
-        },
-        {
-          "internalType": "contract IStableSwap",
-          "name": "baseSwap",
-          "type": "address"
-        }
-      ],
-      "name": "initializeMetaSwap",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "metaSwapStorage",
-      "outputs": [
-        {
-          "internalType": "contract IStableSwap",
-          "name": "baseSwap",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "baseVirtualPrice",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "baseCacheLastUpdated",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "pause",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "paused",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "futureA",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "futureATime",
-          "type": "uint256"
-        }
-      ],
-      "name": "rampA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "lpAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "minAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeLiquidity",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxBurnAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeLiquidityImbalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "lpAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint8",
-          "name": "index",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeLiquidityOneToken",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_candidate",
-          "type": "address"
-        }
-      ],
-      "name": "setAdminCandidate",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "newSwapFee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "newAdminFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_feeController",
-          "type": "address"
-        }
-      ],
-      "name": "setFeeController",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_feeDistributor",
-          "type": "address"
-        }
-      ],
-      "name": "setFeeDistributor",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "stopRampA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexFrom",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexTo",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "dx",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minDy",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "swap",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "swapStorage",
-      "outputs": [
-        {
-          "internalType": "contract LPToken",
-          "name": "lpToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "adminFee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "initialA",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "futureA",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "initialATime",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "futureATime",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexFrom",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tokenIndexTo",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "dx",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "minDy",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "swapUnderlying",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "tokenIndexes",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "unpause",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "withdrawAdminFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+    MAX_A_CHANGE(): Promise<bigint> {
+        return this.eth_call(functions.MAX_A_CHANGE, [])
     }
-  ]
+
+    MAX_SWAP_FEE(): Promise<bigint> {
+        return this.eth_call(functions.MAX_SWAP_FEE, [])
+    }
+
+    MIN_RAMP_TIME(): Promise<bigint> {
+        return this.eth_call(functions.MIN_RAMP_TIME, [])
+    }
+
+    admin(): Promise<string> {
+        return this.eth_call(functions.admin, [])
+    }
+
+    adminCandidate(): Promise<string> {
+        return this.eth_call(functions.adminCandidate, [])
+    }
+
+    calculateRemoveLiquidity(amount: bigint): Promise<Array<bigint>> {
+        return this.eth_call(functions.calculateRemoveLiquidity, [amount])
+    }
+
+    calculateRemoveLiquidityOneToken(tokenAmount: bigint, tokenIndex: number): Promise<bigint> {
+        return this.eth_call(functions.calculateRemoveLiquidityOneToken, [tokenAmount, tokenIndex])
+    }
+
+    calculateSwap(tokenIndexFrom: number, tokenIndexTo: number, dx: bigint): Promise<bigint> {
+        return this.eth_call(functions.calculateSwap, [tokenIndexFrom, tokenIndexTo, dx])
+    }
+
+    calculateSwapUnderlying(tokenIndexFrom: number, tokenIndexTo: number, dx: bigint): Promise<bigint> {
+        return this.eth_call(functions.calculateSwapUnderlying, [tokenIndexFrom, tokenIndexTo, dx])
+    }
+
+    calculateTokenAmount(amounts: Array<bigint>, deposit: boolean): Promise<bigint> {
+        return this.eth_call(functions.calculateTokenAmount, [amounts, deposit])
+    }
+
+    feeController(): Promise<string> {
+        return this.eth_call(functions.feeController, [])
+    }
+
+    feeDistributor(): Promise<string> {
+        return this.eth_call(functions.feeDistributor, [])
+    }
+
+    getA(): Promise<bigint> {
+        return this.eth_call(functions.getA, [])
+    }
+
+    getAPrecise(): Promise<bigint> {
+        return this.eth_call(functions.getAPrecise, [])
+    }
+
+    getAdminBalance(index: number): Promise<bigint> {
+        return this.eth_call(functions.getAdminBalance, [index])
+    }
+
+    getAdminBalances(): Promise<Array<bigint>> {
+        return this.eth_call(functions.getAdminBalances, [])
+    }
+
+    getLpToken(): Promise<string> {
+        return this.eth_call(functions.getLpToken, [])
+    }
+
+    getNumberOfTokens(): Promise<bigint> {
+        return this.eth_call(functions.getNumberOfTokens, [])
+    }
+
+    getToken(index: number): Promise<string> {
+        return this.eth_call(functions.getToken, [index])
+    }
+
+    getTokenBalance(index: number): Promise<bigint> {
+        return this.eth_call(functions.getTokenBalance, [index])
+    }
+
+    getTokenBalances(): Promise<Array<bigint>> {
+        return this.eth_call(functions.getTokenBalances, [])
+    }
+
+    getTokenIndex(token: string): Promise<number> {
+        return this.eth_call(functions.getTokenIndex, [token])
+    }
+
+    getTokenPrecisionMultipliers(): Promise<Array<bigint>> {
+        return this.eth_call(functions.getTokenPrecisionMultipliers, [])
+    }
+
+    getTokens(): Promise<Array<string>> {
+        return this.eth_call(functions.getTokens, [])
+    }
+
+    getVirtualPrice(): Promise<bigint> {
+        return this.eth_call(functions.getVirtualPrice, [])
+    }
+
+    metaSwapStorage(): Promise<([baseSwap: string, baseVirtualPrice: bigint, baseCacheLastUpdated: bigint] & {baseSwap: string, baseVirtualPrice: bigint, baseCacheLastUpdated: bigint})> {
+        return this.eth_call(functions.metaSwapStorage, [])
+    }
+
+    paused(): Promise<boolean> {
+        return this.eth_call(functions.paused, [])
+    }
+
+    swapStorage(): Promise<([lpToken: string, fee: bigint, adminFee: bigint, initialA: bigint, futureA: bigint, initialATime: bigint, futureATime: bigint] & {lpToken: string, fee: bigint, adminFee: bigint, initialA: bigint, futureA: bigint, initialATime: bigint, futureATime: bigint})> {
+        return this.eth_call(functions.swapStorage, [])
+    }
+
+    tokenIndexes(arg0: string): Promise<number> {
+        return this.eth_call(functions.tokenIndexes, [arg0])
+    }
 }

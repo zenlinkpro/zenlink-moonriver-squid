@@ -1,16 +1,13 @@
-import { EvmLogHandlerContext } from "@subsquid/substrate-processor";
-import { Store } from "@subsquid/typeorm-store";
 import { Bundle, Factory, Pair } from "../model";
 import * as factoryAbi from '../abis/factory'
 import { ZERO_BD } from "../consts";
 import { getOrCreateToken } from "../entities/token";
+import { Context, Log } from "../processor";
 
-export async function handleNewPair(ctx: EvmLogHandlerContext<Store>) {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const contractAddress = evmLogArgs.address.toLowerCase()
+export async function handleNewPair(ctx: Context, log: Log) {
+  const contractAddress = log.address.toLowerCase()
 
-  const data = factoryAbi.events['PairCreated(address,address,address,uint256)']
-    .decode(evmLogArgs)
+  const data = factoryAbi.events.PairCreated.decode(log)
 
   // load factory (create if first exchange)
   let factory = await ctx.store.get(Factory, contractAddress)
@@ -37,16 +34,16 @@ export async function handleNewPair(ctx: EvmLogHandlerContext<Store>) {
   await ctx.store.save(factory)
 
   // create the tokens
-  const token0 = await getOrCreateToken(ctx, data.token0.toLowerCase())
-  const token1 = await getOrCreateToken(ctx, data.token1.toLowerCase())
+  const token0 = await getOrCreateToken(ctx, log, data.token0.toLowerCase())
+  const token1 = await getOrCreateToken(ctx, log, data.token1.toLowerCase())
 
   const pair = new Pair({
     id: data.pair.toLowerCase(),
     token0,
     token1,
     liquidityProviderCount: 0,
-    createdAtTimestamp: new Date(ctx.block.timestamp),
-    createdAtBlockNumber: BigInt(ctx.block.height),
+    createdAtTimestamp: new Date(log.block.timestamp),
+    createdAtBlockNumber: BigInt(log.block.height),
     txCount: 0,
     reserve0: ZERO_BD.toString(),
     reserve1: ZERO_BD.toString(),

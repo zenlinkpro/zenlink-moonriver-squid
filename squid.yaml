@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: zenlink-moonriver
-version: 4
+version: 1
 description: |-
   Zenlink Moonriver Squid
 build:
@@ -9,6 +9,17 @@ deploy:
   addons:
     postgres:
   processor:
-    cmd: [ "node", "lib/processor" ]
+    cmd: ["node", "lib/processor"]
   api:
-    cmd: [ "npx", "squid-graphql-server"]
+    cmd: [
+        "npx",
+        "squid-graphql-server",
+        "--dumb-cache",
+        "in-memory",
+        "--dumb-cache-ttl", 
+        "1000",
+        "--dumb-cache-size",
+        "100",
+        "--dumb-cache-max-age",
+        "1000",
+    ]

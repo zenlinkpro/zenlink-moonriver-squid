@@ -6,32 +6,32 @@ import {Farm} from "./farm.model"
 
 @Entity_()
 export class SingleTokenLock {
-  constructor(props?: Partial<SingleTokenLock>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<SingleTokenLock>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => Token, {nullable: true})
-  token!: Token
+    @Index_()
+    @ManyToOne_(() => Token, {nullable: true})
+    token!: Token
 
-  @Column_("text", {nullable: false})
-  totalLiquidityUSD!: string
+    @Column_("text", {nullable: false})
+    totalLiquidityUSD!: string
 
-  @Column_("text", {nullable: false})
-  totalLiquidity!: string
+    @Column_("text", {nullable: false})
+    totalLiquidity!: string
 
-  @Column_("text", {nullable: false})
-  totalLiquidityETH!: string
+    @Column_("text", {nullable: false})
+    totalLiquidityETH!: string
 
-  @OneToMany_(() => SingleTokenLockDayData, e => e.singleTokenLock)
-  singleTokenLockDayData!: SingleTokenLockDayData[]
+    @OneToMany_(() => SingleTokenLockDayData, e => e.singleTokenLock)
+    singleTokenLockDayData!: SingleTokenLockDayData[]
 
-  @OneToMany_(() => SingleTokenLockHourData, e => e.singleTokenLock)
-  singleTokenLockHourData!: SingleTokenLockHourData[]
+    @OneToMany_(() => SingleTokenLockHourData, e => e.singleTokenLock)
+    singleTokenLockHourData!: SingleTokenLockHourData[]
 
-  @OneToMany_(() => Farm, e => e.singleTokenLock)
-  farm!: Farm[]
+    @OneToMany_(() => Farm, e => e.singleTokenLock)
+    farm!: Farm[]
 }

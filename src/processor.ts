@@ -1,6 +1,12 @@
-import { lookupArchive } from "@subsquid/archive-registry";
-import { EvmLogHandlerContext, SubstrateBatchProcessor } from "@subsquid/substrate-processor";
 import { Store, TypeormDatabase } from "@subsquid/typeorm-store";
+import { 
+  BlockHeader, 
+  DataHandlerContext, 
+  EvmBatchProcessor, 
+  EvmBatchProcessorFields,
+  Log as _Log,
+  Transaction as _Transaction,
+} from "@subsquid/evm-processor";
 import { CHAIN_NODE, FACTORY_ADDRESS, FOUR_POOL, FOUR_POOL_LP, FARMING_ADDRESS } from "./consts";
 import * as factory from './abis/factory'
 import * as pair from './abis/pair'
@@ -24,73 +30,68 @@ import {
 import { handleFarmingClaim, handleFarmingPoolAdd, handleFarmingRedeem, handleFarmingStake } from "./mappings/farming";
 
 const database = new TypeormDatabase()
-const processor = new SubstrateBatchProcessor()
-  .setTypesBundle('moonbeam')
-  .setBlockRange({ from: 1837375 })
+const processor = new EvmBatchProcessor()
   .setDataSource({
-    chain: CHAIN_NODE,
-    archive: lookupArchive('moonriver', { release: "FireSquid" })
+    archive: 'https://v2.archive.subsquid.io/network/moonriver-mainnet',
+    chain: CHAIN_NODE
   })
-  .addEvmLog(FACTORY_ADDRESS, {
-    filter: [factory.events['PairCreated(address,address,address,uint256)'].topic],
+  .setFinalityConfirmation(10)
+  .setBlockRange({ from: 1837375 })
+  .addLog({
+    address: [FACTORY_ADDRESS],
+    topic0: [factory.events.PairCreated.topic],
   })
-  .addEvmLog('*', {
-    filter: [
-      [
-        pair.events['Transfer(address,address,uint256)'].topic,
-        pair.events['Sync(uint112,uint112)'].topic,
-        pair.events['Swap(address,uint256,uint256,uint256,uint256,address)'].topic,
-        pair.events['Mint(address,uint256,uint256)'].topic,
-        pair.events['Burn(address,uint256,uint256,address)'].topic,
-      ],
+  .addLog({
+    topic0: [
+        pair.events.Transfer.topic,
+        pair.events.Sync.topic,
+        pair.events.Swap.topic,
+        pair.events.Mint.topic,
+        pair.events.Burn.topic,
     ],
+    transaction: true
   })
-  .addEvmLog(FOUR_POOL, {
-    filter: [
-      [
-        StableSwapContract.events['NewFee(uint256,uint256)'].topic,
-        StableSwapContract.events['RampA(uint256,uint256,uint256,uint256)'].topic,
-        StableSwapContract.events['StopRampA(uint256,uint256)'].topic,
-        StableSwapContract.events['AddLiquidity(address,uint256[],uint256[],uint256,uint256)'].topic,
-        StableSwapContract.events['RemoveLiquidity(address,uint256[],uint256[],uint256)'].topic,
-        StableSwapContract.events['RemoveLiquidityOne(address,uint256,uint256,uint256)'].topic,
-        StableSwapContract.events['RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)'].topic,
-        StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic
-      ],
+  .addLog({
+    address: [FOUR_POOL],
+    topic0: [
+        StableSwapContract.events.NewFee.topic,
+        StableSwapContract.events.RampA.topic,
+        StableSwapContract.events.StopRampA.topic,
+        StableSwapContract.events.AddLiquidity.topic,
+        StableSwapContract.events.RemoveLiquidity.topic,
+        StableSwapContract.events.RemoveLiquidityOne.topic,
+        StableSwapContract.events.RemoveLiquidityImbalance.topic,
+        StableSwapContract.events.TokenExchange.topic
     ],
+    transaction: true,
     range: { from: 1837375 }
   })
-  .addEvmLog(FOUR_POOL_LP, {
-    filter: [
-      [
-        erc20.events['Transfer(address,address,uint256)'].topic,
-      ],
+  .addLog({
+    address: [FOUR_POOL_LP],
+    topic0: [
+        erc20.events.Transfer.topic,
     ],
+    transaction: true,
     range: { from: 1837375 }
   })
-
-  .addEvmLog(FARMING_ADDRESS, {
-    filter: [
-      [
-        farming.events["Stake(address,uint256,uint256)"].topic,
-        farming.events["Redeem(address,uint256,uint256)"].topic,
-        farming.events["Claim(address,uint256,address[],uint256[])"].topic,
-        farming.events["WithdrawRewards(uint256,address[],uint256[])"].topic,
-        farming.events["EmergencyWithdraw(address,uint256,uint256)"].topic,
-        farming.events["PoolAdded(address)"].topic,
-      ],
+  .addLog({
+    address: [FARMING_ADDRESS],
+    topic0: [
+        farming.events.Stake.topic,
+        farming.events.Redeem.topic,
+        farming.events.Claim.topic,
+        farming.events.WithdrawRewards.topic,
+        farming.events.EmergencyWithdraw.topic,
+        farming.events.PoolAdded.topic,
     ],
+    transaction: true,
     range: { from: 1837375 }
   })
 
 processor.run(database, async (ctx) => {
   for (const block of ctx.blocks) {
-    for (const item of block.items) {
-      if (item.kind === 'event') {
-        if (item.name === 'EVM.Log') {
-          await handleEvmLog({ ...ctx, block: block.header, event: item.event })
-        }
-      }
+    for (const log of block.logs) {
+      await handleEvmLog(ctx, log)
     }
   }
 })
@@ -117,65 +118,64 @@ async function isKnownPairContracts(store: Store, address: string) {
   return false
 }
 
-async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
-  const evmLogArgs = ctx.event.args.log || ctx.event.args;
-  const contractAddress = evmLogArgs.address
+async function handleEvmLog(ctx: Context, log: Log) {
+  const contractAddress = log.address
   switch (contractAddress) {
     case FACTORY_ADDRESS:
-      await handleNewPair(ctx)
+      await handleNewPair(ctx, log)
       break
     case FOUR_POOL:
-      switch (evmLogArgs.topics[0]) {
-        case StableSwapContract.events['NewFee(uint256,uint256)'].topic:
-          await handleStableSwapNewFee(ctx)
+      switch (log.topics[0]) {
+        case StableSwapContract.events.NewFee.topic:
+          await handleStableSwapNewFee(ctx, log)
           break
-        case StableSwapContract.events['RampA(uint256,uint256,uint256,uint256)'].topic:
-          await handleRampA(ctx)
+        case StableSwapContract.events.RampA.topic:
+          await handleRampA(ctx, log)
           break
-        case StableSwapContract.events['StopRampA(uint256,uint256)'].topic:
-          await handleStopRampA(ctx)
+        case StableSwapContract.events.StopRampA.topic:
+          await handleStopRampA(ctx, log)
           break
-        case StableSwapContract.events['AddLiquidity(address,uint256[],uint256[],uint256,uint256)'].topic:
-          await handleStableSwapAddLiquidity(ctx)
+        case StableSwapContract.events.AddLiquidity.topic:
+          await handleStableSwapAddLiquidity(ctx, log)
           break
-        case StableSwapContract.events['RemoveLiquidity(address,uint256[],uint256[],uint256)'].topic:
-          await handleStableSwapRemoveLiquidity(ctx)
+        case StableSwapContract.events.RemoveLiquidity.topic:
+          await handleStableSwapRemoveLiquidity(ctx, log)
           break
-        case StableSwapContract.events['RemoveLiquidityOne(address,uint256,uint256,uint256)'].topic:
-          await handleStableSwapRemoveLiquidityOne(ctx)
+        case StableSwapContract.events.RemoveLiquidityOne.topic:
+          await handleStableSwapRemoveLiquidityOne(ctx, log)
           break
-        case StableSwapContract.events['RemoveLiquidityImbalance(address,uint256[],uint256[],uint256,uint256)'].topic:
-          await handleStableSwapRemoveLiquidityImbalance(ctx)
+        case StableSwapContract.events.RemoveLiquidityImbalance.topic:
+          await handleStableSwapRemoveLiquidityImbalance(ctx, log)
           break
-        case StableSwapContract.events['TokenExchange(address,uint256,uint256,uint256,uint256)'].topic:
-          await handleStableSwapExchange(ctx)
+        case StableSwapContract.events.TokenExchange.topic:
+          await handleStableSwapExchange(ctx, log)
           break
         default:
           break
       }
       break
     case FOUR_POOL_LP:
-      switch (evmLogArgs.topics[0]) {
-        case erc20.events['Transfer(address,address,uint256)'].topic:
-          await handleStableSwapTransfer(ctx)
+      switch (log.topics[0]) {
+        case erc20.events.Transfer.topic:
+          await handleStableSwapTransfer(ctx, log)
           break
         default:
           break
       }
       break
     case FARMING_ADDRESS:
-      switch (evmLogArgs.topics[0]) {
-        case farming.events["PoolAdded(address)"].topic:
-          await handleFarmingPoolAdd(ctx)
+      switch (log.topics[0]) {
+        case farming.events.PoolAdded.topic:
+          await handleFarmingPoolAdd(ctx, log)
           break
-        case farming.events["Stake(address,uint256,uint256)"].topic:
-          await handleFarmingStake(ctx)
+        case farming.events.Stake.topic:
+          await handleFarmingStake(ctx, log)
           break
-        case farming.events["Claim(address,uint256,address[],uint256[])"].topic:
-          await handleFarmingClaim(ctx)
+        case farming.events.Claim.topic:
+          await handleFarmingClaim(ctx, log)
           break
-        case farming.events["Redeem(address,uint256,uint256)"].topic:
-          await handleFarmingRedeem(ctx)
+        case farming.events.Redeem.topic:
+          await handleFarmingRedeem(ctx, log)
           break
         default:
           break
@@ -183,21 +183,21 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
       break
     default:
       if (await isKnownPairContracts(ctx.store, contractAddress)) {
-        switch (evmLogArgs.topics[0]) {
-          case pair.events['Transfer(address,address,uint256)'].topic:
-            await handleTransfer(ctx)
+        switch (log.topics[0]) {
+          case pair.events.Transfer.topic:
+            await handleTransfer(ctx, log)
             break
-          case pair.events['Sync(uint112,uint112)'].topic:
-            await handleSync(ctx)
+          case pair.events.Sync.topic:
+            await handleSync(ctx, log)
             break
-          case pair.events['Swap(address,uint256,uint256,uint256,uint256,address)'].topic:
-            await handleSwap(ctx)
+          case pair.events.Swap.topic:
+            await handleSwap(ctx, log)
             break
-          case pair.events['Mint(address,uint256,uint256)'].topic:
-            await handleMint(ctx)
+          case pair.events.Mint.topic:
+            await handleMint(ctx, log)
             break
-          case pair.events['Burn(address,uint256,uint256,address)'].topic:
-            await handleBurn(ctx)
+          case pair.events.Burn.topic:
+            await handleBurn(ctx, log)
             break
           default:
             break
@@ -205,3 +205,9 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
       }
   }
 }
+
+export type Fields = EvmBatchProcessorFields<typeof processor>
+export type Context = DataHandlerContext<Store, Fields>
+export type Block = BlockHeader<Fields>
+export type Log = _Log<Fields>
+export type Transaction = _Transaction<Fields>

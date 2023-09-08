@@ -1,945 +1,136 @@
-import * as ethers from "ethers";
-import assert from "assert";
+import * as ethers from 'ethers'
+import {LogEvent, Func, ContractBase} from './abi.support'
+import {ABI_JSON} from './farming.abi'
 
-export const abi = new ethers.utils.Interface(getJsonAbi());
-
-export type AdminChanged0Event = ([oldAdmin: string, newAdmin: string] & {oldAdmin: string, newAdmin: string})
-
-export type Candidate0Event = ([newAdmin: string] & {newAdmin: string})
-
-export type Charged0Event = ([pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>] & {pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>})
-
-export type Claim0Event = ([user: string, pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>] & {user: string, pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>})
-
-export type ClaimableBlockUpdated0Event = ([pid: ethers.BigNumber, interval: ethers.BigNumber] & {pid: ethers.BigNumber, interval: ethers.BigNumber})
-
-export type EmergencyWithdraw0Event = ([user: string, pid: ethers.BigNumber, amount: ethers.BigNumber] & {user: string, pid: ethers.BigNumber, amount: ethers.BigNumber})
-
-export type PoolAdded0Event = ([farmingToken: string] & {farmingToken: string})
-
-export type Redeem0Event = ([user: string, pid: ethers.BigNumber, amount: ethers.BigNumber] & {user: string, pid: ethers.BigNumber, amount: ethers.BigNumber})
-
-export type Stake0Event = ([user: string, pid: ethers.BigNumber, amount: ethers.BigNumber] & {user: string, pid: ethers.BigNumber, amount: ethers.BigNumber})
-
-export type WithdrawRewards0Event = ([pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>] & {pid: ethers.BigNumber, rewards: Array<string>, amounts: Array<ethers.BigNumber>})
-
-export interface EvmLog {
-  data: string;
-  topics: string[];
-}
-
-function decodeEvent(signature: string, data: EvmLog): any {
-  return abi.decodeEventLog(
-    abi.getEvent(signature),
-    data.data || "",
-    data.topics
-  );
-}
+export const abi = new ethers.Interface(ABI_JSON);
 
 export const events = {
-  "AdminChanged(address,address)": {
-    topic: abi.getEventTopic("AdminChanged(address,address)"),
-    decode(data: EvmLog): AdminChanged0Event {
-      return decodeEvent("AdminChanged(address,address)", data)
-    }
-  }
-  ,
-  "Candidate(address)": {
-    topic: abi.getEventTopic("Candidate(address)"),
-    decode(data: EvmLog): Candidate0Event {
-      return decodeEvent("Candidate(address)", data)
-    }
-  }
-  ,
-  "Charged(uint256,address[],uint256[])": {
-    topic: abi.getEventTopic("Charged(uint256,address[],uint256[])"),
-    decode(data: EvmLog): Charged0Event {
-      return decodeEvent("Charged(uint256,address[],uint256[])", data)
-    }
-  }
-  ,
-  "Claim(address,uint256,address[],uint256[])": {
-    topic: abi.getEventTopic("Claim(address,uint256,address[],uint256[])"),
-    decode(data: EvmLog): Claim0Event {
-      return decodeEvent("Claim(address,uint256,address[],uint256[])", data)
-    }
-  }
-  ,
-  "ClaimableBlockUpdated(uint256,uint256)": {
-    topic: abi.getEventTopic("ClaimableBlockUpdated(uint256,uint256)"),
-    decode(data: EvmLog): ClaimableBlockUpdated0Event {
-      return decodeEvent("ClaimableBlockUpdated(uint256,uint256)", data)
-    }
-  }
-  ,
-  "EmergencyWithdraw(address,uint256,uint256)": {
-    topic: abi.getEventTopic("EmergencyWithdraw(address,uint256,uint256)"),
-    decode(data: EvmLog): EmergencyWithdraw0Event {
-      return decodeEvent("EmergencyWithdraw(address,uint256,uint256)", data)
-    }
-  }
-  ,
-  "PoolAdded(address)": {
-    topic: abi.getEventTopic("PoolAdded(address)"),
-    decode(data: EvmLog): PoolAdded0Event {
-      return decodeEvent("PoolAdded(address)", data)
-    }
-  }
-  ,
-  "Redeem(address,uint256,uint256)": {
-    topic: abi.getEventTopic("Redeem(address,uint256,uint256)"),
-    decode(data: EvmLog): Redeem0Event {
-      return decodeEvent("Redeem(address,uint256,uint256)", data)
-    }
-  }
-  ,
-  "Stake(address,uint256,uint256)": {
-    topic: abi.getEventTopic("Stake(address,uint256,uint256)"),
-    decode(data: EvmLog): Stake0Event {
-      return decodeEvent("Stake(address,uint256,uint256)", data)
-    }
-  }
-  ,
-  "WithdrawRewards(uint256,address[],uint256[])": {
-    topic: abi.getEventTopic("WithdrawRewards(uint256,address[],uint256[])"),
-    decode(data: EvmLog): WithdrawRewards0Event {
-      return decodeEvent("WithdrawRewards(uint256,address[],uint256[])", data)
-    }
-  }
-  ,
-}
-
-export type Add0Function = ([_farmingToken: string, _rewardTokens: Array<string>, _rewardPerBlock: Array<ethers.BigNumber>, _startBlock: ethers.BigNumber, _claimableInterval: ethers.BigNumber] & {_farmingToken: string, _rewardTokens: Array<string>, _rewardPerBlock: Array<ethers.BigNumber>, _startBlock: ethers.BigNumber, _claimableInterval: ethers.BigNumber})
-
-export type Charge0Function = ([_pid: ethers.BigNumber, _amounts: Array<ethers.BigNumber>] & {_pid: ethers.BigNumber, _amounts: Array<ethers.BigNumber>})
-
-export type Claim0Function = ([_pid: ethers.BigNumber] & {_pid: ethers.BigNumber})
-
-export type EmergencyWithdraw0Function = ([_pid: ethers.BigNumber] & {_pid: ethers.BigNumber})
-
-export type Redeem0Function = ([_pid: ethers.BigNumber, _farmingToken: string, _amount: ethers.BigNumber] & {_pid: ethers.BigNumber, _farmingToken: string, _amount: ethers.BigNumber})
-
-export type Set0Function = ([_pid: ethers.BigNumber, _rewardPerBlock: Array<ethers.BigNumber>, _withUpdate: boolean] & {_pid: ethers.BigNumber, _rewardPerBlock: Array<ethers.BigNumber>, _withUpdate: boolean})
-
-export type SetAdminCandidate0Function = ([_candidate: string] & {_candidate: string})
-
-export type SetClaimableBlock0Function = ([_pid: ethers.BigNumber, _interval: ethers.BigNumber] & {_pid: ethers.BigNumber, _interval: ethers.BigNumber})
-
-export type Stake0Function = ([_pid: ethers.BigNumber, _farmingToken: string, _amount: ethers.BigNumber] & {_pid: ethers.BigNumber, _farmingToken: string, _amount: ethers.BigNumber})
-
-export type UpdatePool0Function = ([_pid: ethers.BigNumber] & {_pid: ethers.BigNumber})
-
-export type WithdrawRewards0Function = ([_pid: ethers.BigNumber, _amounts: Array<ethers.BigNumber>] & {_pid: ethers.BigNumber, _amounts: Array<ethers.BigNumber>})
-
-
-function decodeFunction(data: string): any {
-  return abi.decodeFunctionData(data.slice(0, 10), data)
+    AdminChanged: new LogEvent<([oldAdmin: string, newAdmin: string] & {oldAdmin: string, newAdmin: string})>(
+        abi, '0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f'
+    ),
+    Candidate: new LogEvent<([newAdmin: string] & {newAdmin: string})>(
+        abi, '0x8cc40b9abca4a505a92028908f9d913d621d18112c69412806506f02333f26b4'
+    ),
+    Charged: new LogEvent<([pid: bigint, rewards: Array<string>, amounts: Array<bigint>] & {pid: bigint, rewards: Array<string>, amounts: Array<bigint>})>(
+        abi, '0xa145d60156a87e91a4a98486a8d187f4e4b78f756ff02d42b63b4b2f97207d4d'
+    ),
+    Claim: new LogEvent<([user: string, pid: bigint, rewards: Array<string>, amounts: Array<bigint>] & {user: string, pid: bigint, rewards: Array<string>, amounts: Array<bigint>})>(
+        abi, '0x29efd1570858633f7fcf640ecc43b3edc6515af5b29e8e92d9dcad5209f5cd0d'
+    ),
+    ClaimableBlockUpdated: new LogEvent<([pid: bigint, interval: bigint] & {pid: bigint, interval: bigint})>(
+        abi, '0xa885ff4d8d3bf78eea3ffc74848dbebe77635486e06727000a3c1b5837845e0a'
+    ),
+    EmergencyWithdraw: new LogEvent<([user: string, pid: bigint, amount: bigint] & {user: string, pid: bigint, amount: bigint})>(
+        abi, '0xbb757047c2b5f3974fe26b7c10f732e7bce710b0952a71082702781e62ae0595'
+    ),
+    PoolAdded: new LogEvent<([farmingToken: string] & {farmingToken: string})>(
+        abi, '0x73cca62ab1b520c9715bf4e6c71e3e518c754e7148f65102f43289a7df0efea6'
+    ),
+    Redeem: new LogEvent<([user: string, pid: bigint, amount: bigint] & {user: string, pid: bigint, amount: bigint})>(
+        abi, '0xe5b754fb1abb7f01b499791d0b820ae3b6af3424ac1c59768edb53f4ec31a929'
+    ),
+    Stake: new LogEvent<([user: string, pid: bigint, amount: bigint] & {user: string, pid: bigint, amount: bigint})>(
+        abi, '0x5af417134f72a9d41143ace85b0a26dce6f550f894f2cbc1eeee8810603d91b6'
+    ),
+    WithdrawRewards: new LogEvent<([pid: bigint, rewards: Array<string>, amounts: Array<bigint>] & {pid: bigint, rewards: Array<string>, amounts: Array<bigint>})>(
+        abi, '0x8a63d6747886a8cc1166e78fdd0df86a7a77fe1ee60ac1d042e6ff56c234fcc5'
+    ),
 }
 
 export const functions = {
-  "add(address,address[],uint256[],uint256,uint256)": {
-    sighash: abi.getSighash("add(address,address[],uint256[],uint256,uint256)"),
-    decode(input: string): Add0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "candidateConfirm()": {
-    sighash: abi.getSighash("candidateConfirm()"),
-  }
-  ,
-  "charge(uint256,uint256[])": {
-    sighash: abi.getSighash("charge(uint256,uint256[])"),
-    decode(input: string): Charge0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "claim(uint256)": {
-    sighash: abi.getSighash("claim(uint256)"),
-    decode(input: string): Claim0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "emergencyWithdraw(uint256)": {
-    sighash: abi.getSighash("emergencyWithdraw(uint256)"),
-    decode(input: string): EmergencyWithdraw0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "redeem(uint256,address,uint256)": {
-    sighash: abi.getSighash("redeem(uint256,address,uint256)"),
-    decode(input: string): Redeem0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "set(uint256,uint256[],bool)": {
-    sighash: abi.getSighash("set(uint256,uint256[],bool)"),
-    decode(input: string): Set0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setAdminCandidate(address)": {
-    sighash: abi.getSighash("setAdminCandidate(address)"),
-    decode(input: string): SetAdminCandidate0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "setClaimableBlock(uint256,uint256)": {
-    sighash: abi.getSighash("setClaimableBlock(uint256,uint256)"),
-    decode(input: string): SetClaimableBlock0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "stake(uint256,address,uint256)": {
-    sighash: abi.getSighash("stake(uint256,address,uint256)"),
-    decode(input: string): Stake0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "updatePool(uint256)": {
-    sighash: abi.getSighash("updatePool(uint256)"),
-    decode(input: string): UpdatePool0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
-  "withdrawRewards(uint256,uint256[])": {
-    sighash: abi.getSighash("withdrawRewards(uint256,uint256[])"),
-    decode(input: string): WithdrawRewards0Function {
-      return decodeFunction(input)
-    }
-  }
-  ,
+    add: new Func<[_farmingToken: string, _rewardTokens: Array<string>, _rewardPerBlock: Array<bigint>, _startBlock: bigint, _claimableInterval: bigint], {_farmingToken: string, _rewardTokens: Array<string>, _rewardPerBlock: Array<bigint>, _startBlock: bigint, _claimableInterval: bigint}, []>(
+        abi, '0x13df2cb5'
+    ),
+    admin: new Func<[], {}, string>(
+        abi, '0xf851a440'
+    ),
+    adminCandidate: new Func<[], {}, string>(
+        abi, '0x3accfa6c'
+    ),
+    candidateConfirm: new Func<[], {}, []>(
+        abi, '0x3f023230'
+    ),
+    charge: new Func<[_pid: bigint, _amounts: Array<bigint>], {_pid: bigint, _amounts: Array<bigint>}, []>(
+        abi, '0x432daf3d'
+    ),
+    claim: new Func<[_pid: bigint], {_pid: bigint}, []>(
+        abi, '0x379607f5'
+    ),
+    emergencyWithdraw: new Func<[_pid: bigint], {_pid: bigint}, []>(
+        abi, '0x5312ea8e'
+    ),
+    getPeriodsSinceStart: new Func<[_pid: bigint], {_pid: bigint}, bigint>(
+        abi, '0xf674fc50'
+    ),
+    getPoolInfo: new Func<[_pid: bigint], {_pid: bigint}, ([farmingToken: string, amount: bigint, rewardTokens: Array<string>, rewardPerBlock: Array<bigint>, accRewardPerShare: Array<bigint>, lastRewardBlock: bigint, startBlock: bigint, claimableInterval: bigint] & {farmingToken: string, amount: bigint, rewardTokens: Array<string>, rewardPerBlock: Array<bigint>, accRewardPerShare: Array<bigint>, lastRewardBlock: bigint, startBlock: bigint, claimableInterval: bigint})>(
+        abi, '0x2f380b35'
+    ),
+    getRemaingRewards: new Func<[_pid: bigint], {_pid: bigint}, Array<bigint>>(
+        abi, '0x74ffcc1a'
+    ),
+    getUserInfo: new Func<[_pid: bigint, _user: string], {_pid: bigint, _user: string}, ([amount: bigint, pending: Array<bigint>, rewardDebt: Array<bigint>, nextClaimableBlock: bigint] & {amount: bigint, pending: Array<bigint>, rewardDebt: Array<bigint>, nextClaimableBlock: bigint})>(
+        abi, '0x1069f3b5'
+    ),
+    pendingRewards: new Func<[_pid: bigint, _user: string], {_pid: bigint, _user: string}, ([rewards: Array<bigint>, nextClaimableBlock: bigint] & {rewards: Array<bigint>, nextClaimableBlock: bigint})>(
+        abi, '0xd18df53c'
+    ),
+    poolLength: new Func<[], {}, bigint>(
+        abi, '0x081e3eda'
+    ),
+    redeem: new Func<[_pid: bigint, _farmingToken: string, _amount: bigint], {_pid: bigint, _farmingToken: string, _amount: bigint}, []>(
+        abi, '0xd8780161'
+    ),
+    set: new Func<[_pid: bigint, _rewardPerBlock: Array<bigint>, _withUpdate: boolean], {_pid: bigint, _rewardPerBlock: Array<bigint>, _withUpdate: boolean}, []>(
+        abi, '0x4dd1a1b7'
+    ),
+    setAdminCandidate: new Func<[_candidate: string], {_candidate: string}, []>(
+        abi, '0x96de7aa0'
+    ),
+    setClaimableBlock: new Func<[_pid: bigint, _interval: bigint], {_pid: bigint, _interval: bigint}, []>(
+        abi, '0x95e77e53'
+    ),
+    stake: new Func<[_pid: bigint, _farmingToken: string, _amount: bigint], {_pid: bigint, _farmingToken: string, _amount: bigint}, []>(
+        abi, '0x6e9c931c'
+    ),
+    updatePool: new Func<[_pid: bigint], {_pid: bigint}, []>(
+        abi, '0x51eb05a6'
+    ),
+    withdrawRewards: new Func<[_pid: bigint, _amounts: Array<bigint>], {_pid: bigint, _amounts: Array<bigint>}, []>(
+        abi, '0xa0b1f5dd'
+    ),
 }
 
-interface ChainContext  {
-  _chain: Chain
-}
+export class Contract extends ContractBase {
 
-interface BlockContext  {
-  _chain: Chain
-  block: Block
-}
-
-interface Block  {
-  height: number
-}
-
-interface Chain  {
-  client:  {
-    call: <T=any>(method: string, params?: unknown[]) => Promise<T>
-  }
-}
-
-export class Contract  {
-  private readonly _chain: Chain
-  private readonly blockHeight: number
-  readonly address: string
-
-  constructor(ctx: BlockContext, address: string)
-  constructor(ctx: ChainContext, block: Block, address: string)
-  constructor(ctx: BlockContext, blockOrAddress: Block | string, address?: string) {
-    this._chain = ctx._chain
-    if (typeof blockOrAddress === 'string')  {
-      this.blockHeight = ctx.block.height
-      this.address = ethers.utils.getAddress(blockOrAddress)
+    admin(): Promise<string> {
+        return this.eth_call(functions.admin, [])
     }
-    else  {
-      assert(address != null)
-      this.blockHeight = blockOrAddress.height
-      this.address = ethers.utils.getAddress(address)
+
+    adminCandidate(): Promise<string> {
+        return this.eth_call(functions.adminCandidate, [])
     }
-  }
 
-  async admin(): Promise<string> {
-    return this.call("admin", [])
-  }
-
-  async adminCandidate(): Promise<string> {
-    return this.call("adminCandidate", [])
-  }
-
-  async getPeriodsSinceStart(_pid: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("getPeriodsSinceStart", [_pid])
-  }
-
-  async getPoolInfo(_pid: ethers.BigNumber): Promise<([farmingToken: string, amount: ethers.BigNumber, rewardTokens: Array<string>, rewardPerBlock: Array<ethers.BigNumber>, accRewardPerShare: Array<ethers.BigNumber>, lastRewardBlock: ethers.BigNumber, startBlock: ethers.BigNumber, claimableInterval: ethers.BigNumber] & {farmingToken: string, amount: ethers.BigNumber, rewardTokens: Array<string>, rewardPerBlock: Array<ethers.BigNumber>, accRewardPerShare: Array<ethers.BigNumber>, lastRewardBlock: ethers.BigNumber, startBlock: ethers.BigNumber, claimableInterval: ethers.BigNumber})> {
-    return this.call("getPoolInfo", [_pid])
-  }
-
-  async getRemaingRewards(_pid: ethers.BigNumber): Promise<Array<ethers.BigNumber>> {
-    return this.call("getRemaingRewards", [_pid])
-  }
-
-  async getUserInfo(_pid: ethers.BigNumber, _user: string): Promise<([amount: ethers.BigNumber, pending: Array<ethers.BigNumber>, rewardDebt: Array<ethers.BigNumber>, nextClaimableBlock: ethers.BigNumber] & {amount: ethers.BigNumber, pending: Array<ethers.BigNumber>, rewardDebt: Array<ethers.BigNumber>, nextClaimableBlock: ethers.BigNumber})> {
-    return this.call("getUserInfo", [_pid, _user])
-  }
-
-  async pendingRewards(_pid: ethers.BigNumber, _user: string): Promise<([rewards: Array<ethers.BigNumber>, nextClaimableBlock: ethers.BigNumber] & {rewards: Array<ethers.BigNumber>, nextClaimableBlock: ethers.BigNumber})> {
-    return this.call("pendingRewards", [_pid, _user])
-  }
-
-  async poolLength(): Promise<ethers.BigNumber> {
-    return this.call("poolLength", [])
-  }
-
-  private async call(name: string, args: any[]) : Promise<any> {
-    const fragment = abi.getFunction(name)
-    const data = abi.encodeFunctionData(fragment, args)
-    const result = await this._chain.client.call('eth_call', [{to: this.address, data}, this.blockHeight])
-    const decoded = abi.decodeFunctionResult(fragment, result)
-    return decoded.length > 1 ? decoded : decoded[0]
-  }
-}
-
-function getJsonAbi(): any {
-  return [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "oldAdmin",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "AdminChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newAdmin",
-          "type": "address"
-        }
-      ],
-      "name": "Candidate",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address[]",
-          "name": "rewards",
-          "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "Charged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address[]",
-          "name": "rewards",
-          "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "Claim",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "interval",
-          "type": "uint256"
-        }
-      ],
-      "name": "ClaimableBlockUpdated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "EmergencyWithdraw",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "farmingToken",
-          "type": "address"
-        }
-      ],
-      "name": "PoolAdded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Redeem",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "Stake",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "pid",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address[]",
-          "name": "rewards",
-          "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "WithdrawRewards",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_farmingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_rewardTokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_rewardPerBlock",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_startBlock",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_claimableInterval",
-          "type": "uint256"
-        }
-      ],
-      "name": "add",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "admin",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "adminCandidate",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "candidateConfirm",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "charge",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "claim",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "emergencyWithdraw",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getPeriodsSinceStart",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "periods",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getPoolInfo",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "farmingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address[]",
-          "name": "rewardTokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "rewardPerBlock",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "accRewardPerShare",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lastRewardBlock",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startBlock",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "claimableInterval",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getRemaingRewards",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "remainingRewards",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_user",
-          "type": "address"
-        }
-      ],
-      "name": "getUserInfo",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "pending",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "rewardDebt",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "nextClaimableBlock",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_user",
-          "type": "address"
-        }
-      ],
-      "name": "pendingRewards",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "rewards",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "nextClaimableBlock",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "poolLength",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_farmingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "redeem",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_rewardPerBlock",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bool",
-          "name": "_withUpdate",
-          "type": "bool"
-        }
-      ],
-      "name": "set",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_candidate",
-          "type": "address"
-        }
-      ],
-      "name": "setAdminCandidate",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_interval",
-          "type": "uint256"
-        }
-      ],
-      "name": "setClaimableBlock",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_farmingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "stake",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        }
-      ],
-      "name": "updatePool",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_pid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "withdrawRewards",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+    getPeriodsSinceStart(_pid: bigint): Promise<bigint> {
+        return this.eth_call(functions.getPeriodsSinceStart, [_pid])
     }
-  ]
+
+    getPoolInfo(_pid: bigint): Promise<([farmingToken: string, amount: bigint, rewardTokens: Array<string>, rewardPerBlock: Array<bigint>, accRewardPerShare: Array<bigint>, lastRewardBlock: bigint, startBlock: bigint, claimableInterval: bigint] & {farmingToken: string, amount: bigint, rewardTokens: Array<string>, rewardPerBlock: Array<bigint>, accRewardPerShare: Array<bigint>, lastRewardBlock: bigint, startBlock: bigint, claimableInterval: bigint})> {
+        return this.eth_call(functions.getPoolInfo, [_pid])
+    }
+
+    getRemaingRewards(_pid: bigint): Promise<Array<bigint>> {
+        return this.eth_call(functions.getRemaingRewards, [_pid])
+    }
+
+    getUserInfo(_pid: bigint, _user: string): Promise<([amount: bigint, pending: Array<bigint>, rewardDebt: Array<bigint>, nextClaimableBlock: bigint] & {amount: bigint, pending: Array<bigint>, rewardDebt: Array<bigint>, nextClaimableBlock: bigint})> {
+        return this.eth_call(functions.getUserInfo, [_pid, _user])
+    }
+
+    pendingRewards(_pid: bigint, _user: string): Promise<([rewards: Array<bigint>, nextClaimableBlock: bigint] & {rewards: Array<bigint>, nextClaimableBlock: bigint})> {
+        return this.eth_call(functions.pendingRewards, [_pid, _user])
+    }
+
+    poolLength(): Promise<bigint> {
+        return this.eth_call(functions.poolLength, [])
+    }
 }

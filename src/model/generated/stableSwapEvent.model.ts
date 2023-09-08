@@ -5,26 +5,26 @@ import {StableSwapEventData, fromJsonStableSwapEventData} from "./_stableSwapEve
 
 @Entity_()
 export class StableSwapEvent {
-  constructor(props?: Partial<StableSwapEvent>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<StableSwapEvent>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => StableSwap, {nullable: true})
-  stableSwap!: StableSwap
+    @Index_()
+    @ManyToOne_(() => StableSwap, {nullable: true})
+    stableSwap!: StableSwap
 
-  @Column_("jsonb", {transformer: {to: obj => obj == null ? undefined : obj.toJSON(), from: obj => obj == null ? undefined : fromJsonStableSwapEventData(obj)}, nullable: true})
-  data!: StableSwapEventData | undefined | null
+    @Column_("jsonb", {transformer: {to: obj => obj == null ? undefined : obj.toJSON(), from: obj => obj == null ? undefined : fromJsonStableSwapEventData(obj)}, nullable: true})
+    data!: StableSwapEventData | undefined | null
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  block!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    block!: bigint
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  timestamp!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    timestamp!: bigint
 
-  @Column_("bytea", {nullable: false})
-  transaction!: Uint8Array
+    @Column_("bytea", {nullable: false})
+    transaction!: Uint8Array
 }
