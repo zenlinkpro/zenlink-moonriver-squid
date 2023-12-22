@@ -7,12 +7,16 @@ import { Context, Log } from "../processor"
 
 export const WNATIVE = '0x98878b06940ae243284ca214f92bb71a2b032b8a'.toLowerCase()
 export const USDC = '0xe3f5a90f9cb311505cd691a46596599aa1a0ad7d'.toLowerCase()
+export const FRAX = '0x1A93B23281CC1CDE4C4741353F3064709A16197d'.toLowerCase()
 export const WNATIVE_USDC = '0x3933B0214b3B117fB52646343076D229817A4e4b'.toLowerCase()
+export const WNATIVE_FRAX = '0x9A3cf92a7EC9D13FD28BCa1BEaD6fF263C8D766E'.toLowerCase()
 
 export const WHITELIST: string[] = [
-  '0x98878b06940ae243284ca214f92bb71a2b032b8a'.toLowerCase(), // wnative
-  '0xe3f5a90f9cb311505cd691a46596599aa1a0ad7d'.toLowerCase(), // usdc
+  WNATIVE,
+  USDC,
+  '0xFfFFfFff1FcaCBd218EDc0EbA20Fc2308C778080'.toLowerCase(), // ksm
   '0x0f47ba9d9bde3442b42175e51d6a367928a1173b'.toLowerCase(), // zlk
+  FRAX
 ]
 
 // minimum liquidity required to count towards tracked volume for pairs with small # of Lps
@@ -22,9 +26,16 @@ export const MINIMUM_USD_THRESHOLD_NEW_PAIRS = new BigDecimal(50)
 export const MINIMUM_LIQUIDITY_THRESHOLD_ETH = new BigDecimal(5)
 
 export async function getEthPriceInUSD(ctx: Context): Promise<BigDecimal> {
+  const fraxPair = await getPair(ctx, WNATIVE_FRAX)
   const usdcPair = await getPair(ctx, WNATIVE_USDC)
-  if (!usdcPair) return BigDecimal(0)
 
+  if (fraxPair && BigDecimal(fraxPair.reserveETH).gt(MINIMUM_LIQUIDITY_THRESHOLD_ETH)) {
+    return fraxPair.token0.id === FRAX
+      ? BigDecimal(fraxPair.token0Price)
+      : BigDecimal(fraxPair.token1Price)
+  }
+  
+  if (!usdcPair) return BigDecimal(0)
   return usdcPair.token0.id === USDC
     ? BigDecimal(usdcPair.token0Price)
     : BigDecimal(usdcPair.token1Price)
